@@ -69,5 +69,5 @@ EXPOSE 10000
 
 # Start Laravel server and run migrations at startup
 CMD php artisan migrate --force && \
-    php artisan receipts:migrate-to-base64 && \
+    # php artisan receipts:migrate-to-base64 && \
     php artisan serve --host=0.0.0.0 --port=10000
