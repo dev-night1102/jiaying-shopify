@@ -1,4 +1,4 @@
-# ---- 1. Build frontend ----
+# ---- 1. Build frontend (Vite + Tailwind) ----
 FROM node:18 AS frontend
 
 WORKDIR /app
@@ -7,11 +7,14 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Copy frontend files and build
+# Copy frontend source and config files
 COPY resources resources
 COPY vite.config.js ./
 COPY tailwind.config.js ./
+COPY postcss.config.cjs ./   # ensure correct PostCSS config
 COPY public public
+
+# Build frontend for production
 RUN npm run build
 
 
@@ -47,9 +50,8 @@ RUN mkdir -p database && \
     touch database/database.sqlite && \
     chown -R www-data:www-data database
 
-# Copy frontend build artifacts
+# Copy ONLY built frontend public assets (DO NOT overwrite resources)
 COPY --from=frontend /app/public ./public
-COPY --from=frontend /app/resources ./resources
 
 # Install PHP dependencies
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
@@ -67,7 +69,6 @@ RUN mkdir -p \
 # Expose port for Render
 EXPOSE 10000
 
-# Start Laravel server and run migrations at startup
+# Run migrations at startup and start Laravel server
 CMD php artisan migrate --force && \
-    # php artisan receipts:migrate-to-base64 && \
     php artisan serve --host=0.0.0.0 --port=10000
