@@ -11,7 +11,7 @@ RUN npm install
 COPY resources resources
 COPY vite.config.js ./
 COPY tailwind.config.js ./
-COPY postcss.config.js ./    
+COPY postcss.config.cjs ./    
 COPY public public
 
 # Build frontend for production
