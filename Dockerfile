@@ -11,7 +11,7 @@ RUN npm install
 COPY resources resources
 COPY vite.config.js ./
 COPY tailwind.config.js ./
-COPY postcss.config.cjs ./   # ensure correct PostCSS config
+COPY postcss.config.js ./    
 COPY public public
 
 # Build frontend for production
@@ -50,7 +50,7 @@ RUN mkdir -p database && \
     touch database/database.sqlite && \
     chown -R www-data:www-data database
 
-# Copy ONLY built frontend public assets (DO NOT overwrite resources)
+# Copy ONLY built frontend public assets (do not overwrite resources)
 COPY --from=frontend /app/public ./public
 
 # Install PHP dependencies
