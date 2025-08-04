@@ -7,6 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
+
 # Copy frontend source and config files
 COPY resources resources
 COPY vite.config.js ./
