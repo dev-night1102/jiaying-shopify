@@ -24,7 +24,13 @@ class RegisterController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');
+        try {
+            return Inertia::render('Auth/Register');
+        } catch (\Exception $e) {
+            \Log::error('Register page error: ' . $e->getMessage());
+            // Return a simple response if Inertia fails
+            return response()->view('errors.500', [], 500);
+        }
     }
 
     public function store(Request $request)
@@ -44,8 +50,6 @@ class RegisterController extends Controller
             ]);
 
         // Generate verification code and send email via Laravel
-        $shouldRedirectToVerification = false;
-        
         try {
             $verificationCode = $user->generateVerificationCode();
             
@@ -62,7 +66,6 @@ class RegisterController extends Controller
                 });
                 
                 \Log::info('Email sent successfully to: ' . $user->email);
-                $shouldRedirectToVerification = true;
             } catch (\Exception $e) {
                 \Log::error('Email sending failed: ' . $e->getMessage());
                 // If email sending fails, auto-verify for now
@@ -83,17 +86,14 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
-        // Only redirect to verification page if email was sent successfully
-        if ($shouldRedirectToVerification) {
-            try {
-                session(['email' => $user->email]);
-                return redirect(route('verification.code'));
-            } catch (\Exception $e) {
-                \Log::error('Verification route not found: ' . $e->getMessage());
-            }
+        // If user is already verified, go to dashboard
+        if ($user->hasVerifiedEmail()) {
+            return redirect(route('dashboard'))->with('success', 'Registration successful! Welcome to Shopping Agent Pro.');
         }
-        
-        return redirect(route('dashboard'))->with('success', 'Registration successful! Welcome to Shopping Agent Pro.');
+
+        // Otherwise, redirect to verification page
+        session(['email' => $user->email]);
+        return redirect(route('verification.code'));
         } catch (\Exception $e) {
             \Log::error('Registration error: ' . $e->getMessage());
             
