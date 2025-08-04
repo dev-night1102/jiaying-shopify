@@ -42,13 +42,24 @@ class RegisterController extends Controller
             'language' => $request->language ?? 'en',
         ]);
 
-        // For now, auto-verify users until email service is ready
-        $user->markEmailAsVerified();
+        // Generate verification code and send email
+        $verificationCode = $user->generateVerificationCode();
+        
+        // Send verification code via Nodemailer service
+        try {
+            Http::post(env('EMAIL_SERVICE_URL', 'http://localhost:3001') . '/send-verification', [
+                'email' => $user->email,
+                'code' => $verificationCode
+            ]);
+        } catch (\Exception $e) {
+            // If email service fails, auto-verify for now
+            $user->markEmailAsVerified();
+        }
 
         $this->membershipService->createTrialMembership($user);
 
         Auth::login($user);
 
-        return redirect(route('dashboard'));
+        return redirect(route('verification.code'))->with('email', $user->email);
     }
 }

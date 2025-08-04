@@ -18,6 +18,8 @@ class User extends Authenticatable
         'role',
         'balance',
         'language',
+        'verification_code',
+        'verification_code_expires_at',
     ];
 
     protected $hidden = [
@@ -29,6 +31,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'balance' => 'decimal:2',
+        'verification_code_expires_at' => 'datetime',
     ];
 
     public function isAdmin(): bool
