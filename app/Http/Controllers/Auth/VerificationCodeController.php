@@ -37,11 +37,11 @@ class VerificationCodeController extends Controller
         $user = Auth::user();
         $verificationCode = $user->generateVerificationCode();
 
-        // Send new verification code via Nodemailer service
-        $response = Http::post(env('EMAIL_SERVICE_URL', 'http://localhost:3001') . '/send-verification', [
-            'email' => $user->email,
-            'code' => $verificationCode
-        ]);
+        // Send new verification code via Laravel Mail
+        \Mail::raw("Your new verification code is: {$verificationCode}\n\nThis code expires in 10 minutes.", function ($message) use ($user) {
+            $message->to($user->email)
+                    ->subject('New Verification Code - Shopping Agent');
+        });
 
         return back()->with('success', 'New verification code sent!');
     }

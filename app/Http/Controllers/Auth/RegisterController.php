@@ -42,17 +42,17 @@ class RegisterController extends Controller
             'language' => $request->language ?? 'en',
         ]);
 
-        // Generate verification code and send email
+        // Generate verification code and send email via Laravel
         $verificationCode = $user->generateVerificationCode();
         
-        // Send verification code via Nodemailer service
+        // Send verification code via Laravel Mail
         try {
-            Http::post(env('EMAIL_SERVICE_URL', 'http://localhost:3001') . '/send-verification', [
-                'email' => $user->email,
-                'code' => $verificationCode
-            ]);
+            \Mail::raw("Your verification code is: {$verificationCode}\n\nThis code expires in 10 minutes.", function ($message) use ($user) {
+                $message->to($user->email)
+                        ->subject('Your Verification Code - Shopping Agent');
+            });
         } catch (\Exception $e) {
-            // If email service fails, auto-verify for now
+            // If email sending fails, auto-verify for now
             $user->markEmailAsVerified();
         }
 
