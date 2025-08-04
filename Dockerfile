@@ -53,19 +53,17 @@ COPY --from=frontend /app/public/build ./public/build
 # Install PHP dependencies
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
-# Create SQLite database file and directories
-RUN mkdir -p database && \
-    touch database/database.sqlite && \
-    mkdir -p \
+# Create directories for Laravel
+RUN mkdir -p \
     bootstrap/cache \
     storage/framework/views \
     storage/framework/cache \
     storage/framework/sessions \
     storage/logs
 
-# Fix permissions
-RUN chmod -R 775 storage bootstrap/cache database && \
-    chown -R www-data:www-data storage bootstrap/cache database
+# Copy startup script
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
 # Set environment variables for SQLite
 ENV DB_CONNECTION=sqlite
@@ -77,9 +75,5 @@ ENV APP_DEBUG=false
 # Expose port for Render
 EXPOSE 10000
 
-# Run migrations and start Laravel server
-CMD php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan migrate --force && \
-    php artisan db:seed --force && \
-    php artisan serve --host=0.0.0.0 --port=10000
+# Use startup script
+CMD ["/usr/local/bin/start.sh"]
