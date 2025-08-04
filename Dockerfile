@@ -78,8 +78,7 @@ ENV APP_DEBUG=false
 EXPOSE 10000
 
 # Run migrations and start Laravel server
-CMD php artisan key:generate --force && \
-    php artisan config:cache && \
+CMD php artisan config:cache && \
     php artisan route:cache && \
     php artisan migrate --force && \
     php artisan db:seed --force && \
