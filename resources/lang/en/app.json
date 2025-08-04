@@ -256,5 +256,12 @@
     "balance": "Balance",
     "role": "Role",
     "all_users": "All Users",
-    "close": "Close"
+    "close": "Close",
+    "Enter Verification Code": "Enter Verification Code",
+    "We sent a 6-digit code to": "We sent a 6-digit code to",
+    "Check your email inbox (and spam folder)": "Check your email inbox (and spam folder)",
+    "Verify Email": "Verify Email",
+    "Didn't receive the code?": "Didn't receive the code?",
+    "Send New Code": "Send New Code",
+    "Code expires in 10 minutes": "Code expires in 10 minutes"
 }

@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\MembershipService;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -42,16 +42,18 @@ class RegisterController extends Controller
             'language' => $request->language ?? 'en',
         ]);
 
-        event(new Registered($user));
+        $verificationCode = $user->generateVerificationCode();
+
+        // Send verification code via Nodemailer service
+        $response = Http::post('http://localhost:3001/send-verification', [
+            'email' => $user->email,
+            'code' => $verificationCode
+        ]);
 
         $this->membershipService->createTrialMembership($user);
 
-        if (config('app.env') === 'local') {
-            $user->markEmailAsVerified();
-        }
-
         Auth::login($user);
 
-        return redirect(route('dashboard'));
+        return redirect(route('verification.code'))->with('email', $user->email);
     }
 }

@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\VerificationCodeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\User\ChatController;
 use App\Http\Controllers\User\MembershipController;
@@ -34,13 +34,9 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('verify-email', [EmailVerificationController::class, 'notice'])->name('verification.notice');
-    Route::get('verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
-    Route::post('email/verification-notification', [EmailVerificationController::class, 'resend'])
-        ->middleware('throttle:6,1')
-        ->name('verification.send');
+    Route::get('verify-code', [VerificationCodeController::class, 'show'])->name('verification.code');
+    Route::post('verify-code', [VerificationCodeController::class, 'verify']);
+    Route::post('resend-code', [VerificationCodeController::class, 'resend']);
     
     Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
 });

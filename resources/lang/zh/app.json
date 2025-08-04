@@ -121,5 +121,12 @@
     "items": "项",
     "Showing": "显示",
     "to": "到",
-    "results": "结果"
+    "results": "结果",
+    "Enter Verification Code": "输入验证码",
+    "We sent a 6-digit code to": "我们向以下地址发送了 6 位验证码",
+    "Check your email inbox (and spam folder)": "请检查您的邮箱收件箱（以及垃圾邮件文件夹）",
+    "Verify Email": "验证邮箱",
+    "Didn't receive the code?": "没有收到验证码？",
+    "Send New Code": "发送新验证码",
+    "Code expires in 10 minutes": "验证码将在 10 分钟后过期"
 }
