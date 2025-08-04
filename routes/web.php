@@ -17,6 +17,9 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('Welcome');
 });
+Route::get('/home', function () {
+    return Inertia::render('Welcome');
+});
 
 Route::post('/language', [LanguageController::class, 'switch'])->name('language.switch');
 
