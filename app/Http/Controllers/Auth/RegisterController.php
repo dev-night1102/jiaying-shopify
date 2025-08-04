@@ -43,6 +43,8 @@ class RegisterController extends Controller
         ]);
 
         // Generate verification code and send email via Laravel
+        $shouldRedirectToVerification = false;
+        
         try {
             $verificationCode = $user->generateVerificationCode();
             
@@ -59,6 +61,7 @@ class RegisterController extends Controller
                 });
                 
                 \Log::info('Email sent successfully to: ' . $user->email);
+                $shouldRedirectToVerification = true;
             } catch (\Exception $e) {
                 \Log::error('Email sending failed: ' . $e->getMessage());
                 // If email sending fails, auto-verify for now
@@ -79,13 +82,13 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
-        // Redirect to verification page if it exists, otherwise to dashboard
-        try {
-            if (route('verification.code')) {
+        // Only redirect to verification page if email was sent successfully
+        if ($shouldRedirectToVerification) {
+            try {
                 return redirect(route('verification.code'))->with('email', $user->email);
+            } catch (\Exception $e) {
+                \Log::error('Verification route not found: ' . $e->getMessage());
             }
-        } catch (\Exception $e) {
-            \Log::error('Verification route not found: ' . $e->getMessage());
         }
         
         return redirect(route('dashboard'))->with('success', 'Registration successful! Welcome to Shopping Agent Pro.');
