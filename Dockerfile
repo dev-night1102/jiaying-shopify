@@ -10,7 +10,7 @@ RUN npm install
 # Copy frontend source and config files
 COPY resources resources
 COPY vite.config.js ./
-COPY tailwind.config.js ./
+COPY tailwind.config.cjs ./
 COPY postcss.config.cjs ./    
 COPY public public
 
@@ -45,30 +45,31 @@ WORKDIR /var/www
 # Copy Laravel application
 COPY . .
 
-# Create SQLite database file
-RUN mkdir -p database && \
-    touch database/database.sqlite && \
-    chown -R www-data:www-data database
-
-# Copy ONLY built frontend public assets (do not overwrite resources)
-COPY --from=frontend /app/public ./public
+# Copy built frontend assets from first stage
+COPY --from=frontend /app/public/build ./public/build
 
 # Install PHP dependencies
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
-# Create Laravel cache/log folders and fix permissions
-RUN mkdir -p \
+# Create SQLite database file and directories
+RUN mkdir -p database && \
+    touch database/database.sqlite && \
+    mkdir -p \
     bootstrap/cache \
     storage/framework/views \
     storage/framework/cache \
     storage/framework/sessions \
-    storage/logs && \
-    chmod -R 775 storage bootstrap/cache database && \
+    storage/logs
+
+# Fix permissions
+RUN chmod -R 775 storage bootstrap/cache database && \
     chown -R www-data:www-data storage bootstrap/cache database
 
 # Expose port for Render
 EXPOSE 10000
 
 # Run migrations at startup and start Laravel server
-CMD php artisan migrate --force && \
+CMD php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan migrate --force && \
     php artisan serve --host=0.0.0.0 --port=10000
