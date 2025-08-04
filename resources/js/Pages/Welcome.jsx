@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from '@inertiajs/react';
 import { useTranslation } from '@/Utils/i18n';
 import { 
@@ -20,6 +20,8 @@ import {
 export default function Welcome() {
     const { t } = useTranslation();
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [isVisible, setIsVisible] = useState({});
+    const observerRef = useRef();
 
     const testimonials = [
         {
@@ -50,25 +52,25 @@ export default function Welcome() {
             icon: ShoppingBag,
             title: 'Smart Order Management',
             description: 'Advanced order tracking from submission to delivery with real-time updates.',
-            color: 'from-blue-500 to-cyan-500'
+            color: 'from-indigo-500 to-slate-600'
         },
         {
             icon: Users,
             title: 'Expert Shopping Agents',
             description: 'Professional team with expertise in international commerce and logistics.',
-            color: 'from-purple-500 to-pink-500'
+            color: 'from-slate-600 to-gray-700'
         },
         {
             icon: Globe,
             title: 'Global Marketplace Access',
             description: 'Shop from any website worldwide with our comprehensive service network.',
-            color: 'from-green-500 to-emerald-500'
+            color: 'from-teal-600 to-slate-700'
         },
         {
             icon: Shield,
             title: 'Secure & Guaranteed',
             description: 'Money-back guarantee, secure payments, and comprehensive insurance coverage.',
-            color: 'from-orange-500 to-red-500'
+            color: 'from-amber-600 to-slate-700'
         },
     ];
 
@@ -106,6 +108,30 @@ export default function Welcome() {
         }
     ];
 
+    // Intersection Observer for scroll animations
+    useEffect(() => {
+        observerRef.current = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setIsVisible(prev => ({
+                            ...prev,
+                            [entry.target.dataset.animate]: true
+                        }));
+                    }
+                });
+            },
+            { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+        );
+
+        // Observe all animated elements
+        const animatedElements = document.querySelectorAll('[data-animate]');
+        animatedElements.forEach(el => observerRef.current.observe(el));
+
+        return () => observerRef.current?.disconnect();
+    }, []);
+
+    // Carousel timer
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % testimonials.length);
@@ -124,7 +150,7 @@ export default function Welcome() {
                     <div className="flex justify-between items-center h-16">
                         <div className="flex items-center">
                             <div className="flex-shrink-0">
-                                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-slate-800 bg-clip-text text-transparent">
                                     ShopAgent Pro
                                 </h1>
                             </div>
@@ -138,7 +164,7 @@ export default function Welcome() {
                             </Link>
                             <Link
                                 href="/register"
-                                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                                className="bg-gradient-to-r from-indigo-600 to-slate-700 text-white px-6 py-2 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-200"
                             >
                                 Start Free Trial
                             </Link>
@@ -149,44 +175,45 @@ export default function Welcome() {
 
             {/* Hero Section */}
             <section className="relative pt-20 pb-20 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-slate-50 to-gray-100"></div>
                 <div className="absolute inset-0" style={{
-                    backgroundImage: `url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1920&h=1080&fit=crop')`,
+                    backgroundImage: `url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1920&h=1080&fit=crop&q=80')`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
-                    opacity: '0.05'
+                    opacity: '0.08'
                 }}></div>
                 
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center">
-                        <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 animate-fade-in-up">
-                            Your Global
-                            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 hero-title">
+                            <span className="inline-block hero-word-1">Your</span>{' '}
+                            <span className="inline-block hero-word-2">Global</span>
+                            <span className="block bg-gradient-to-r from-indigo-600 via-slate-700 to-gray-800 bg-clip-text text-transparent hero-word-3">
                                 Shopping Agent
                             </span>
                         </h1>
-                        <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed animate-fade-in-up animation-delay-200">
+                        <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed hero-subtitle">
                             Shop from any website worldwide with our professional shopping agent service. 
                             Get instant quotes, track orders in real-time, and chat with experts.
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400">
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center hero-buttons">
                             <Link
                                 href="/register"
-                                className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg px-8 py-4 rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center"
+                                className="group bg-gradient-to-r from-indigo-600 to-slate-700 text-white text-lg px-8 py-4 rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center"
                             >
                                 Start Free 30-Day Trial
                                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
                             </Link>
                             <Link
                                 href="#how-it-works"
-                                className="text-gray-700 border-2 border-gray-300 text-lg px-8 py-4 rounded-full hover:border-blue-600 hover:text-blue-600 transition-all duration-300"
+                                className="text-gray-700 border-2 border-gray-300 text-lg px-8 py-4 rounded-full hover:border-indigo-600 hover:text-indigo-600 transition-all duration-300"
                             >
                                 See How It Works
                             </Link>
                         </div>
                         
                         {/* Trust Indicators */}
-                        <div className="mt-12 flex justify-center items-center space-x-8 animate-fade-in-up animation-delay-600">
+                        <div className="mt-12 flex justify-center items-center space-x-8 hero-trust">
                             <div className="flex items-center text-yellow-500">
                                 {[...Array(5)].map((_, i) => (
                                     <Star key={i} className="w-5 h-5 fill-current" />
@@ -201,13 +228,21 @@ export default function Welcome() {
             {/* Stats Section */}
             <section className="py-16 bg-gray-900 text-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div 
+                        className={`grid grid-cols-2 md:grid-cols-4 gap-8 transition-all duration-1000 ${
+                            isVisible.stats ? 'animate-stats-reveal' : 'opacity-0 translate-y-20'
+                        }`}
+                        data-animate="stats">
                         {stats.map((stat, index) => (
-                            <div key={index} className="text-center group">
-                                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <div key={index} 
+                                 className={`text-center group animate-stat-item transition-all duration-700 ${
+                                     isVisible.stats ? '' : 'opacity-0 translate-y-10'
+                                 }`}
+                                 style={{ animationDelay: `${index * 150}ms` }}>
+                                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-full mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 stat-icon-bounce">
                                     <stat.icon className="w-8 h-8" />
                                 </div>
-                                <div className="text-3xl font-bold mb-2">{stat.number}</div>
+                                <div className="text-3xl font-bold mb-2 stat-number" data-number={stat.number}>0</div>
                                 <div className="text-gray-300">{stat.label}</div>
                             </div>
                         ))}
@@ -216,9 +251,13 @@ export default function Welcome() {
             </section>
 
             {/* Features Section */}
-            <section className="py-20 bg-gray-50">
+            <section className="py-20 bg-gray-50 overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
+                    <div 
+                        className={`text-center mb-16 transition-all duration-1000 ${
+                            isVisible['features-title'] ? 'animate-slide-up' : 'opacity-0 translate-y-20'
+                        }`}
+                        data-animate="features-title">
                         <h2 className="text-4xl font-bold text-gray-900 mb-4">
                             Why Choose ShopAgent Pro?
                         </h2>
@@ -227,18 +266,30 @@ export default function Welcome() {
                         </p>
                     </div>
                     
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div 
+                        className={`grid md:grid-cols-2 lg:grid-cols-4 gap-8 ${
+                            isVisible.features ? 'animate-features-cascade' : ''
+                        }`}
+                        data-animate="features">
                         {features.map((feature, index) => (
-                            <div key={index} className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 bg-gradient-to-r ${feature.color} text-white group-hover:scale-110 transition-transform duration-300`}>
-                                    <feature.icon className="w-8 h-8" />
+                            <div key={index} 
+                                 className={`group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 hover:rotate-1 feature-card ${
+                                     isVisible.features ? '' : 'opacity-0 translate-y-20 rotate-3'
+                                 }`}
+                                 style={{ 
+                                     animationDelay: `${index * 200}ms`,
+                                     transformOrigin: 'center bottom'
+                                 }}>
+                                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 bg-gradient-to-r ${feature.color} text-white group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 feature-icon-float`}>
+                                    <feature.icon className="w-8 h-8 group-hover:scale-110 transition-transform duration-300" />
                                 </div>
-                                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                                <h3 className="text-xl font-semibold text-gray-900 mb-4 group-hover:text-indigo-600 transition-colors duration-300">
                                     {feature.title}
                                 </h3>
-                                <p className="text-gray-600 leading-relaxed">
+                                <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors duration-300">
                                     {feature.description}
                                 </p>
+                                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-slate-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             </div>
                         ))}
                     </div>
@@ -261,15 +312,15 @@ export default function Welcome() {
                         {howItWorks.map((step, index) => (
                             <div key={index} className="text-center group">
                                 <div className="relative mb-8">
-                                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full text-white text-2xl font-bold group-hover:scale-110 transition-transform duration-300">
+                                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-full text-white text-2xl font-bold group-hover:scale-110 transition-transform duration-300">
                                         {step.step}
                                     </div>
                                     {index < howItWorks.length - 1 && (
-                                        <div className="hidden lg:block absolute top-10 left-full w-full h-0.5 bg-gradient-to-r from-blue-200 to-purple-200 transform -translate-y-0.5"></div>
+                                        <div className="hidden lg:block absolute top-10 left-full w-full h-0.5 bg-gradient-to-r from-indigo-200 to-slate-300 transform -translate-y-0.5"></div>
                                     )}
                                 </div>
                                 <div className="mb-4">
-                                    <step.icon className="w-8 h-8 mx-auto text-gray-400 group-hover:text-blue-600 transition-colors duration-300" />
+                                    <step.icon className="w-8 h-8 mx-auto text-gray-400 group-hover:text-indigo-600 transition-colors duration-300" />
                                 </div>
                                 <h3 className="text-xl font-semibold text-gray-900 mb-4">
                                     {step.title}
@@ -358,7 +409,7 @@ export default function Welcome() {
             </section>
 
             {/* CTA Section */}
-            <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white">
+            <section className="py-20 bg-gradient-to-r from-indigo-600 via-slate-700 to-gray-800 text-white">
                 <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
                     <h2 className="text-4xl font-bold mb-4">
                         Ready to Start Shopping Globally?
@@ -369,13 +420,13 @@ export default function Welcome() {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link
                             href="/register"
-                            className="bg-white text-blue-600 text-lg px-8 py-4 rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300 font-semibold"
+                            className="bg-white text-indigo-600 text-lg px-8 py-4 rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300 font-semibold"
                         >
                             Start Your Free Trial
                         </Link>
                         <Link
                             href="/login"
-                            className="border-2 border-white text-white text-lg px-8 py-4 rounded-full hover:bg-white hover:text-blue-600 transition-all duration-300"
+                            className="border-2 border-white text-white text-lg px-8 py-4 rounded-full hover:bg-white hover:text-indigo-600 transition-all duration-300"
                         >
                             Login to Your Account
                         </Link>
@@ -388,17 +439,17 @@ export default function Welcome() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid md:grid-cols-4 gap-8">
                         <div className="col-span-2 md:col-span-1">
-                            <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">
+                            <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-slate-400 bg-clip-text text-transparent mb-4">
                                 ShopAgent Pro
                             </h3>
                             <p className="text-gray-400 mb-6">
                                 Your trusted partner for global shopping. Professional, secure, and reliable.
                             </p>
                             <div className="flex space-x-4">
-                                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                                <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-full flex items-center justify-center">
                                     <Globe className="w-5 h-5" />
                                 </div>
-                                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                                <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-full flex items-center justify-center">
                                     <Shield className="w-5 h-5" />
                                 </div>
                             </div>
@@ -443,10 +494,58 @@ export default function Welcome() {
 
             {/* Custom Styles */}
             <style jsx>{`
-                @keyframes fade-in-up {
+                /* Hero Animations */
+                .hero-title {
+                    animation: hero-reveal 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+                }
+                
+                .hero-word-1 {
+                    animation: word-slide-in 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+                    animation-delay: 0.2s;
+                    opacity: 0;
+                    transform: translateX(-100px) rotateY(-30deg);
+                }
+                
+                .hero-word-2 {
+                    animation: word-slide-in 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+                    animation-delay: 0.4s;
+                    opacity: 0;
+                    transform: translateX(100px) rotateY(30deg);
+                }
+                
+                .hero-word-3 {
+                    animation: gradient-reveal 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+                    animation-delay: 0.6s;
+                    opacity: 0;
+                    transform: translateY(50px) scale(0.8);
+                }
+                
+                .hero-subtitle {
+                    animation: subtitle-fade-in 1s ease-out forwards;
+                    animation-delay: 1s;
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                
+                .hero-buttons {
+                    animation: buttons-bounce-in 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+                    animation-delay: 1.2s;
+                    opacity: 0;
+                    transform: translateY(40px) scale(0.8);
+                }
+                
+                .hero-trust {
+                    animation: trust-slide-in 0.6s ease-out forwards;
+                    animation-delay: 1.4s;
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+
+                /* Stats Animations */
+                @keyframes stats-reveal {
                     0% {
                         opacity: 0;
-                        transform: translateY(30px);
+                        transform: translateY(50px);
                     }
                     100% {
                         opacity: 1;
@@ -454,23 +553,162 @@ export default function Welcome() {
                     }
                 }
                 
-                .animate-fade-in-up {
-                    animation: fade-in-up 0.6s ease-out forwards;
+                .animate-stats-reveal {
+                    animation: stats-reveal 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
                 }
                 
-                .animation-delay-200 {
-                    animation-delay: 0.2s;
-                    opacity: 0;
+                .stat-icon-bounce {
+                    animation: icon-bounce 2s infinite;
                 }
                 
-                .animation-delay-400 {
-                    animation-delay: 0.4s;
-                    opacity: 0;
+                @keyframes icon-bounce {
+                    0%, 20%, 50%, 80%, 100% {
+                        transform: translateY(0) scale(1);
+                    }
+                    40% {
+                        transform: translateY(-8px) scale(1.05);
+                    }
+                    60% {
+                        transform: translateY(-4px) scale(1.02);
+                    }
+                }
+
+                /* Feature Cards */
+                .feature-card {
+                    animation: card-reveal 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+                    position: relative;
+                    overflow: hidden;
                 }
                 
-                .animation-delay-600 {
-                    animation-delay: 0.6s;
-                    opacity: 0;
+                .feature-icon-float {
+                    animation: float 3s ease-in-out infinite;
+                }
+                
+                @keyframes float {
+                    0%, 100% {
+                        transform: translateY(0px) rotate(0deg);
+                    }
+                    33% {
+                        transform: translateY(-5px) rotate(1deg);
+                    }
+                    66% {
+                        transform: translateY(-3px) rotate(-1deg);
+                    }
+                }
+
+                /* Keyframe Definitions */
+                @keyframes hero-reveal {
+                    from {
+                        opacity: 0;
+                        transform: translateY(50px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                @keyframes word-slide-in {
+                    to {
+                        opacity: 1;
+                        transform: translateX(0) rotateY(0deg);
+                    }
+                }
+                
+                @keyframes gradient-reveal {
+                    to {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+                }
+                
+                @keyframes subtitle-fade-in {
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                @keyframes buttons-bounce-in {
+                    to {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+                }
+                
+                @keyframes trust-slide-in {
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                @keyframes card-reveal {
+                    to {
+                        opacity: 1;
+                        transform: translateY(0) rotate(0deg);
+                    }
+                }
+                
+                @keyframes slide-up {
+                    from {
+                        opacity: 0;
+                        transform: translateY(40px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                .animate-slide-up {
+                    animation: slide-up 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+                }
+
+                /* Hover Effects */
+                .feature-card:hover {
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                }
+                
+                .feature-card:before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                    transition: left 0.5s;
+                }
+                
+                .feature-card:hover:before {
+                    left: 100%;
+                }
+
+                /* Parallax Effect */
+                @media (prefers-reduced-motion: no-preference) {
+                    .hero-title {
+                        transform-style: preserve-3d;
+                    }
+                    
+                    .feature-card {
+                        transform-style: preserve-3d;
+                        backface-visibility: hidden;
+                    }
+                }
+
+                /* Loading Animation */
+                @keyframes pulse-glow {
+                    0%, 100% {
+                        box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+                    }
+                    50% {
+                        box-shadow: 0 0 40px rgba(99, 102, 241, 0.6);
+                    }
+                }
+                
+                .group:hover .feature-icon-float {
+                    animation: pulse-glow 1.5s infinite, float 3s ease-in-out infinite;
                 }
             `}</style>
         </div>
