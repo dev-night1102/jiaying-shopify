@@ -52,7 +52,7 @@ export default function Welcome() {
             icon: ShoppingBag,
             title: 'Smart Order Management',
             description: 'Advanced order tracking from submission to delivery with real-time updates.',
-            color: 'from-indigo-500 to-slate-600'
+            color: 'from-blue-500 to-orange-500'
         },
         {
             icon: Users,
@@ -175,12 +175,12 @@ export default function Welcome() {
 
             {/* Hero Section */}
             <section className="relative pt-20 pb-20 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-slate-50 to-gray-100"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-orange-50"></div>
                 <div className="absolute inset-0" style={{
-                    backgroundImage: `url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1920&h=1080&fit=crop&q=80')`,
+                    backgroundImage: `url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&h=1080&fit=crop&q=80')`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
-                    opacity: '0.08'
+                    opacity: '0.05'
                 }}></div>
                 
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -188,25 +188,25 @@ export default function Welcome() {
                         <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 hero-title">
                             <span className="inline-block hero-word-1">Your</span>{' '}
                             <span className="inline-block hero-word-2">Global</span>
-                            <span className="block bg-gradient-to-r from-indigo-600 via-slate-700 to-gray-800 bg-clip-text text-transparent hero-word-3">
-                                Shopping Agent
+                            <span className="block bg-gradient-to-r from-blue-600 via-orange-500 to-blue-700 bg-clip-text text-transparent hero-word-3">
+                                Shopping Partner
                             </span>
                         </h1>
                         <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed hero-subtitle">
-                            Shop from any website worldwide with our professional shopping agent service. 
-                            Get instant quotes, track orders in real-time, and chat with experts.
+                            We make global shopping simple and trustworthy. Get anything from anywhere - 
+                            with transparent pricing, real-time updates, and personal support every step of the way.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center hero-buttons">
                             <Link
                                 href="/register"
-                                className="group bg-gradient-to-r from-indigo-600 to-slate-700 text-white text-lg px-8 py-4 rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center"
+                                className="group bg-gradient-to-r from-blue-600 to-orange-500 text-white text-lg px-8 py-4 rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center"
                             >
                                 Start Free 30-Day Trial
                                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
                             </Link>
                             <Link
                                 href="#how-it-works"
-                                className="text-gray-700 border-2 border-gray-300 text-lg px-8 py-4 rounded-full hover:border-indigo-600 hover:text-indigo-600 transition-all duration-300"
+                                className="text-gray-700 border-2 border-gray-300 text-lg px-8 py-4 rounded-full hover:border-blue-600 hover:text-blue-600 transition-all duration-300"
                             >
                                 See How It Works
                             </Link>
@@ -239,7 +239,7 @@ export default function Welcome() {
                                      isVisible.stats ? '' : 'opacity-0 translate-y-10'
                                  }`}
                                  style={{ animationDelay: `${index * 150}ms` }}>
-                                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-full mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 stat-icon-bounce">
+                                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-orange-500 rounded-full mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 stat-icon-bounce">
                                     <stat.icon className="w-8 h-8" />
                                 </div>
                                 <div className="text-3xl font-bold mb-2 stat-number" data-number={stat.number}>0</div>
@@ -283,13 +283,13 @@ export default function Welcome() {
                                 <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 bg-gradient-to-r ${feature.color} text-white group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 feature-icon-float`}>
                                     <feature.icon className="w-8 h-8 group-hover:scale-110 transition-transform duration-300" />
                                 </div>
-                                <h3 className="text-xl font-semibold text-gray-900 mb-4 group-hover:text-indigo-600 transition-colors duration-300">
+                                <h3 className="text-xl font-semibold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">
                                     {feature.title}
                                 </h3>
                                 <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors duration-300">
                                     {feature.description}
                                 </p>
-                                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-slate-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-orange-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             </div>
                         ))}
                     </div>
@@ -312,15 +312,15 @@ export default function Welcome() {
                         {howItWorks.map((step, index) => (
                             <div key={index} className="text-center group">
                                 <div className="relative mb-8">
-                                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-full text-white text-2xl font-bold group-hover:scale-110 transition-transform duration-300">
+                                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-orange-500 rounded-full text-white text-2xl font-bold group-hover:scale-110 transition-transform duration-300">
                                         {step.step}
                                     </div>
                                     {index < howItWorks.length - 1 && (
-                                        <div className="hidden lg:block absolute top-10 left-full w-full h-0.5 bg-gradient-to-r from-indigo-200 to-slate-300 transform -translate-y-0.5"></div>
+                                        <div className="hidden lg:block absolute top-10 left-full w-full h-0.5 bg-gradient-to-r from-blue-200 to-orange-200 transform -translate-y-0.5"></div>
                                     )}
                                 </div>
                                 <div className="mb-4">
-                                    <step.icon className="w-8 h-8 mx-auto text-gray-400 group-hover:text-indigo-600 transition-colors duration-300" />
+                                    <step.icon className="w-8 h-8 mx-auto text-gray-400 group-hover:text-blue-600 transition-colors duration-300" />
                                 </div>
                                 <h3 className="text-xl font-semibold text-gray-900 mb-4">
                                     {step.title}
@@ -409,7 +409,7 @@ export default function Welcome() {
             </section>
 
             {/* CTA Section */}
-            <section className="py-20 bg-gradient-to-r from-indigo-600 via-slate-700 to-gray-800 text-white">
+            <section className="py-20 bg-gradient-to-r from-blue-600 via-orange-500 to-blue-700 text-white">
                 <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
                     <h2 className="text-4xl font-bold mb-4">
                         Ready to Start Shopping Globally?
@@ -420,13 +420,13 @@ export default function Welcome() {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link
                             href="/register"
-                            className="bg-white text-indigo-600 text-lg px-8 py-4 rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300 font-semibold"
+                            className="bg-white text-blue-600 text-lg px-8 py-4 rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300 font-semibold"
                         >
                             Start Your Free Trial
                         </Link>
                         <Link
                             href="/login"
-                            className="border-2 border-white text-white text-lg px-8 py-4 rounded-full hover:bg-white hover:text-indigo-600 transition-all duration-300"
+                            className="border-2 border-white text-white text-lg px-8 py-4 rounded-full hover:bg-white hover:text-blue-600 transition-all duration-300"
                         >
                             Login to Your Account
                         </Link>
@@ -439,17 +439,17 @@ export default function Welcome() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid md:grid-cols-4 gap-8">
                         <div className="col-span-2 md:col-span-1">
-                            <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-slate-400 bg-clip-text text-transparent mb-4">
+                            <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent mb-4">
                                 ShopAgent Pro
                             </h3>
                             <p className="text-gray-400 mb-6">
                                 Your trusted partner for global shopping. Professional, secure, and reliable.
                             </p>
                             <div className="flex space-x-4">
-                                <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-full flex items-center justify-center">
+                                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-orange-500 rounded-full flex items-center justify-center">
                                     <Globe className="w-5 h-5" />
                                 </div>
-                                <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-slate-700 rounded-full flex items-center justify-center">
+                                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-orange-500 rounded-full flex items-center justify-center">
                                     <Shield className="w-5 h-5" />
                                 </div>
                             </div>
