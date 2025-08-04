@@ -47,11 +47,16 @@ class RegisterController extends Controller
         
         // Send verification code via Laravel Mail
         try {
+            \Log::info('Attempting to send verification email to: ' . $user->email . ' with code: ' . $verificationCode);
+            
             \Mail::raw("Your verification code is: {$verificationCode}\n\nThis code expires in 10 minutes.", function ($message) use ($user) {
                 $message->to($user->email)
                         ->subject('Your Verification Code - Shopping Agent');
             });
+            
+            \Log::info('Email sent successfully to: ' . $user->email);
         } catch (\Exception $e) {
+            \Log::error('Email sending failed: ' . $e->getMessage());
             // If email sending fails, auto-verify for now
             $user->markEmailAsVerified();
         }
