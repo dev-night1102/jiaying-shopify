@@ -29,18 +29,19 @@ class RegisterController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'language' => $request->language ?? 'en',
-        ]);
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'language' => $request->language ?? 'en',
+            ]);
 
         // Generate verification code and send email via Laravel
         $shouldRedirectToVerification = false;
@@ -85,12 +86,25 @@ class RegisterController extends Controller
         // Only redirect to verification page if email was sent successfully
         if ($shouldRedirectToVerification) {
             try {
-                return redirect(route('verification.code'))->with('email', $user->email);
+                session(['email' => $user->email]);
+                return redirect(route('verification.code'));
             } catch (\Exception $e) {
                 \Log::error('Verification route not found: ' . $e->getMessage());
             }
         }
         
         return redirect(route('dashboard'))->with('success', 'Registration successful! Welcome to Shopping Agent Pro.');
+        } catch (\Exception $e) {
+            \Log::error('Registration error: ' . $e->getMessage());
+            
+            // If user was created but something else failed, log them in
+            if (isset($user) && $user->exists) {
+                Auth::login($user);
+                return redirect(route('dashboard'))->with('warning', 'Registration completed with some issues. Welcome!');
+            }
+            
+            // Otherwise, redirect back with error
+            return back()->withInput()->with('error', 'Registration failed. Please try again.');
+        }
     }
 }

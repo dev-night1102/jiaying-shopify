@@ -12,15 +12,19 @@ class VerificationCodeController extends Controller
 {
     public function show()
     {
-        $email = session('email');
-        
-        if (!$email && Auth::check()) {
-            $email = Auth::user()->email;
-        }
-        
-        if (!$email) {
+        // First check if user is authenticated
+        if (!Auth::check()) {
             return redirect(route('login'))->with('error', 'Please log in to verify your email.');
         }
+        
+        $user = Auth::user();
+        
+        // Check if user is already verified
+        if ($user->hasVerifiedEmail()) {
+            return redirect(route('dashboard'))->with('info', 'Your email is already verified.');
+        }
+        
+        $email = session('email') ?? $user->email;
         
         return Inertia::render('Auth/VerifyCode', [
             'email' => $email

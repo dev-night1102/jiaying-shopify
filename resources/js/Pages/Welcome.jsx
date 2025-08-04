@@ -29,21 +29,21 @@ export default function Welcome() {
             role: "Fashion Enthusiast",
             content: "Amazing service! I was able to get exclusive items from Japan that I couldn't find anywhere else. The process was smooth and transparent.",
             rating: 5,
-            avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b2bb?w=64&h=64&fit=crop&crop=face"
+            avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&fit=crop"
         },
         {
             name: "Michael Chen",
             role: "Tech Collector",
             content: "Professional and reliable. They handled my electronics purchase perfectly, including all the customs and shipping details.",
             rating: 5,
-            avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face"
+            avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop"
         },
         {
             name: "Emma Davis",
             role: "Small Business Owner",
             content: "Great for sourcing products for my business. The bulk ordering feature and competitive pricing has helped grow my company.",
             rating: 5,
-            avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop&crop=face"
+            avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop"
         }
     ];
 
