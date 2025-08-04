@@ -45,7 +45,7 @@ class RegisterController extends Controller
         $verificationCode = $user->generateVerificationCode();
 
         // Send verification code via Nodemailer service
-        $response = Http::post('http://localhost:3001/send-verification', [
+        $response = Http::post(env('EMAIL_SERVICE_URL', 'http://localhost:3001') . '/send-verification', [
             'email' => $user->email,
             'code' => $verificationCode
         ]);
