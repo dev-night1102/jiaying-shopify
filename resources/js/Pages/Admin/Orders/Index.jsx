@@ -20,10 +20,14 @@ export default function AdminOrdersIndex({ auth, orders = [], filters = {} }) {
                                 <div className="flex space-x-4">
                                     <select className="input">
                                         <option value="">{t('all_orders')}</option>
-                                        <option value="pending">{t('pending')}</option>
+                                        <option value="requested">{t('requested')}</option>
                                         <option value="quoted">{t('quoted')}</option>
                                         <option value="accepted">{t('accepted')}</option>
+                                        <option value="paid">{t('paid')}</option>
+                                        <option value="purchased">{t('purchased')}</option>
+                                        <option value="inspected">{t('inspected')}</option>
                                         <option value="shipped">{t('shipped')}</option>
+                                        <option value="delivered">{t('delivered')}</option>
                                     </select>
                                 </div>
                             </div>
@@ -72,11 +76,15 @@ export default function AdminOrdersIndex({ auth, orders = [], filters = {} }) {
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="text-sm text-gray-900 max-w-xs truncate">
-                                                            {order.product_name || order.product_url}
+                                                            <a href={order.product_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                                {order.product_link}
+                                                            </a>
                                                         </div>
-                                                        <div className="text-sm text-gray-500">
-                                                            {t('quantity')}: {order.quantity}
-                                                        </div>
+                                                        {order.notes && (
+                                                            <div className="text-sm text-gray-500 truncate max-w-xs">
+                                                                {order.notes}
+                                                            </div>
+                                                        )}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <StatusBadge status={order.status} />
@@ -92,7 +100,7 @@ export default function AdminOrdersIndex({ auth, orders = [], filters = {} }) {
                                                             >
                                                                 {t('view')}
                                                             </Link>
-                                                            {order.status === 'pending' && (
+                                                            {order.status === 'requested' && (
                                                                 <Link
                                                                     href={`/admin/orders/${order.id}/quote`}
                                                                     className="text-green-600 hover:text-green-900"

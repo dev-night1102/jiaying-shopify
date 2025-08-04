@@ -27,9 +27,16 @@ class LoginController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+        
+        $user = $request->user();
+        
+        // Check if user needs to verify email
+        if (!$user->hasVerifiedEmail()) {
+            return redirect()->route('verification.code')->with('email', $user->email);
+        }
 
         return redirect()->intended(
-            $request->user()->isAdmin() ? route('admin.dashboard') : route('dashboard')
+            $user->isAdmin() ? route('admin.dashboard') : route('dashboard')
         );
     }
 
