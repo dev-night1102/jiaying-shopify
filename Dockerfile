@@ -68,8 +68,20 @@ RUN chmod -R 775 storage bootstrap/cache database && \
 # Expose port for Render
 EXPOSE 10000
 
-# Run migrations at startup and start Laravel server
+# Install Node.js for email service
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs
+
+# Install email service dependencies
+WORKDIR /var/www/email-service
+RUN npm install
+
+# Back to Laravel directory
+WORKDIR /var/www
+
+# Run migrations, start email service, and start Laravel server
 CMD php artisan config:cache && \
     php artisan route:cache && \
     php artisan migrate --force && \
+    (cd email-service && npm start &) && \
     php artisan serve --host=0.0.0.0 --port=10000
