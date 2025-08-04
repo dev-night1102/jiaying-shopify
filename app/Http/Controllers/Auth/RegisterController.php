@@ -42,18 +42,13 @@ class RegisterController extends Controller
             'language' => $request->language ?? 'en',
         ]);
 
-        $verificationCode = $user->generateVerificationCode();
-
-        // Send verification code via Nodemailer service
-        $response = Http::post(env('EMAIL_SERVICE_URL', 'http://localhost:3001') . '/send-verification', [
-            'email' => $user->email,
-            'code' => $verificationCode
-        ]);
+        // For now, auto-verify users until email service is ready
+        $user->markEmailAsVerified();
 
         $this->membershipService->createTrialMembership($user);
 
         Auth::login($user);
 
-        return redirect(route('verification.code'))->with('email', $user->email);
+        return redirect(route('dashboard'));
     }
 }
