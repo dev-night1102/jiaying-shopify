@@ -47,6 +47,9 @@ class RegisterController extends Controller
         
         // Send verification code via Laravel Mail
         try {
+            \Log::info('Mail config - MAILER: ' . config('mail.default'));
+            \Log::info('Mail config - HOST: ' . config('mail.mailers.smtp.host'));
+            \Log::info('Mail config - USERNAME: ' . config('mail.mailers.smtp.username'));
             \Log::info('Attempting to send verification email to: ' . $user->email . ' with code: ' . $verificationCode);
             
             \Mail::raw("Your verification code is: {$verificationCode}\n\nThis code expires in 10 minutes.", function ($message) use ($user) {
