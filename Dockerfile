@@ -48,6 +48,8 @@ COPY . .
 # Copy built frontend assets from first stage
 COPY --from=frontend /app/public/build ./public/build
 
+# Render will provide all environment variables directly
+
 # Install PHP dependencies
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
@@ -65,11 +67,19 @@ RUN mkdir -p database && \
 RUN chmod -R 775 storage bootstrap/cache database && \
     chown -R www-data:www-data storage bootstrap/cache database
 
+# Set environment variables for SQLite
+ENV DB_CONNECTION=sqlite
+ENV DB_DATABASE=/var/www/database/database.sqlite
+ENV DB_FOREIGN_KEYS=true
+ENV APP_ENV=production
+ENV APP_DEBUG=false
+
 # Expose port for Render
 EXPOSE 10000
 
 # Run migrations and start Laravel server
-CMD php artisan config:cache && \
+CMD php artisan key:generate --force && \
+    php artisan config:cache && \
     php artisan route:cache && \
     php artisan migrate --force && \
     php artisan db:seed --force && \
