@@ -6,7 +6,7 @@ import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import FlashMessages from '@/Components/FlashMessages';
 
 export default function AuthenticatedLayout({ user, children }) {
-    const { auth } = usePage().props;
+    const { auth, notifications } = usePage().props;
     const currentUser = user || auth?.user;
     const { t } = useTranslation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -14,14 +14,34 @@ export default function AuthenticatedLayout({ user, children }) {
 
     const navigation = isAdmin ? [
         { name: t('Admin Dashboard'), href: '/admin/dashboard', icon: ShoppingBag },
-        { name: t('Orders'), href: '/admin/orders', icon: Package },
-        { name: t('Chat'), href: '/admin/chats', icon: MessageSquare },
+        { 
+            name: t('Orders'), 
+            href: '/admin/orders', 
+            icon: Package,
+            badge: (notifications?.pending_orders || 0) + (notifications?.quoted_orders || 0) + (notifications?.paid_orders || 0)
+        },
+        { 
+            name: t('Chat'), 
+            href: '/admin/chats', 
+            icon: MessageSquare,
+            badge: notifications?.unread_chats || 0
+        },
         { name: t('User Management'), href: '/admin/users', icon: User },
     ] : [
         { name: t('Dashboard'), href: '/dashboard', icon: ShoppingBag },
-        { name: t('Orders'), href: '/orders', icon: Package },
+        { 
+            name: t('Orders'), 
+            href: '/orders', 
+            icon: Package,
+            badge: notifications?.order_updates || 0
+        },
         { name: t('Membership'), href: '/membership', icon: CreditCard },
-        { name: t('Chat'), href: '/chats', icon: MessageSquare },
+        { 
+            name: t('Chat'), 
+            href: '/chats', 
+            icon: MessageSquare,
+            badge: notifications?.unread_chats || 0
+        },
         { name: t('Payments'), href: '/payments', icon: CreditCard },
     ];
 
@@ -49,10 +69,17 @@ export default function AuthenticatedLayout({ user, children }) {
                                     <Link
                                         key={item.name}
                                         href={item.href}
-                                        className="group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200"
+                                        className="group flex items-center justify-between px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200"
                                     >
-                                        <item.icon className="mr-4 h-6 w-6 text-gray-400 group-hover:text-gray-500" />
-                                        {item.name}
+                                        <div className="flex items-center">
+                                            <item.icon className="mr-4 h-6 w-6 text-gray-400 group-hover:text-gray-500" />
+                                            {item.name}
+                                        </div>
+                                        {item.badge > 0 && (
+                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                {item.badge}
+                                            </span>
+                                        )}
                                     </Link>
                                 ))}
                             </nav>
@@ -80,10 +107,17 @@ export default function AuthenticatedLayout({ user, children }) {
                                 <Link
                                     key={item.name}
                                     href={item.href}
-                                    className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200"
+                                    className="group flex items-center justify-between px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200"
                                 >
-                                    <item.icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
-                                    {item.name}
+                                    <div className="flex items-center">
+                                        <item.icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+                                        {item.name}
+                                    </div>
+                                    {item.badge > 0 && (
+                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            {item.badge}
+                                        </span>
+                                    )}
                                 </Link>
                             ))}
                         </nav>

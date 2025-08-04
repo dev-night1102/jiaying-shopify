@@ -35,6 +35,38 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $notifications = [];
+        
+        if ($request->user()) {
+            $user = $request->user();
+            
+            if ($user->isAdmin()) {
+                // Admin notifications
+                $notifications = [
+                    'unread_chats' => \App\Models\Chat::withCount('unreadMessages')
+                        ->having('unread_messages_count', '>', 0)
+                        ->where('status', 'active')
+                        ->count(),
+                    'pending_orders' => \App\Models\Order::where('status', 'requested')->count(),
+                    'quoted_orders' => \App\Models\Order::where('status', 'quoted')->count(),
+                    'paid_orders' => \App\Models\Order::where('status', 'paid')->count(),
+                ];
+            } else {
+                // User notifications
+                $notifications = [
+                    'unread_chats' => $user->chats()
+                        ->withCount('unreadMessages')
+                        ->having('unread_messages_count', '>', 0)
+                        ->where('status', 'active')
+                        ->count(),
+                    'order_updates' => $user->orders()
+                        ->whereIn('status', ['quoted', 'purchased', 'inspected', 'shipped'])
+                        ->where('updated_at', '>', $user->last_seen_orders ?? '1970-01-01')
+                        ->count(),
+                ];
+            }
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -52,6 +84,7 @@ class HandleInertiaRequests extends Middleware
                     ] : null,
                 ] : null,
             ],
+            'notifications' => $notifications,
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),

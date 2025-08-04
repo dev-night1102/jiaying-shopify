@@ -9,7 +9,7 @@ export default function ChatCreate({ auth, orders = [] }) {
     const { data, setData, post, processing, errors } = useForm({
         subject: '',
         order_id: '',
-        initial_message: '',
+        message: '',
     });
 
     const handleSubmit = (e) => {
@@ -54,7 +54,7 @@ export default function ChatCreate({ auth, orders = [] }) {
                                         <option value="">{t('select_order')}</option>
                                         {orders.map((order) => (
                                             <option key={order.id} value={order.id}>
-                                                #{order.order_number} - {order.product_name}
+                                                #{order.order_number} - {order.product_link.substring(0, 50)}...
                                             </option>
                                         ))}
                                     </select>
@@ -68,14 +68,15 @@ export default function ChatCreate({ auth, orders = [] }) {
                                         {t('message')}
                                     </label>
                                     <textarea
-                                        value={data.initial_message}
-                                        onChange={(e) => setData('initial_message', e.target.value)}
+                                        value={data.message}
+                                        onChange={(e) => setData('message', e.target.value)}
                                         rows="4"
                                         className="input w-full"
                                         placeholder={t('describe_your_issue')}
+                                        required
                                     />
-                                    {errors.initial_message && (
-                                        <p className="text-sm text-red-600 mt-1">{errors.initial_message}</p>
+                                    {errors.message && (
+                                        <p className="text-sm text-red-600 mt-1">{errors.message}</p>
                                     )}
                                 </div>
 

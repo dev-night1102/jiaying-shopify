@@ -56,13 +56,20 @@ export default function AdminChatsIndex({ auth, chats = {}, filters = {} }) {
                                             {chatData.map((chat) => (
                                                 <tr key={chat.id} className="hover:bg-gray-50">
                                                     <td className="px-6 py-4 whitespace-nowrap">
-                                                        <div>
-                                                            <div className="text-sm font-medium text-gray-900">
-                                                                {chat.subject || `Chat #${chat.id}`}
+                                                        <div className="flex items-center">
+                                                            <div className="flex-1">
+                                                                <div className="text-sm font-medium text-gray-900">
+                                                                    {chat.subject || `Chat #${chat.id}`}
+                                                                </div>
+                                                                <div className="text-sm text-gray-500">
+                                                                    {new Date(chat.created_at).toLocaleDateString()}
+                                                                </div>
                                                             </div>
-                                                            <div className="text-sm text-gray-500">
-                                                                {new Date(chat.created_at).toLocaleDateString()}
-                                                            </div>
+                                                            {chat.unread_messages_count > 0 && (
+                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 ml-2">
+                                                                    {chat.unread_messages_count}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">

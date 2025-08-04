@@ -59,8 +59,14 @@ class ChatController extends Controller
             $this->authorize('view', $order);
         }
 
+        // Get user's orders for selection
+        $orders = $request->user()->orders()
+            ->latest()
+            ->get(['id', 'order_number', 'product_link', 'status']);
+
         return Inertia::render('Chat/Create', [
             'order' => $order,
+            'orders' => $orders,
         ]);
     }
 
