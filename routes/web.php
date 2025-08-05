@@ -5,9 +5,9 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\VerificationCodeController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\User\ChatController;
-use App\Http\Controllers\User\MembershipController;
-use App\Http\Controllers\User\OrderController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\MembershipController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\LanguageController;
@@ -18,8 +18,34 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 });
 
+// Health check endpoint for Render
+Route::get('/health', function () {
+    try {
+        // Check database connection
+        \DB::connection()->getPdo();
+        return response()->json([
+            'status' => 'healthy',
+            'timestamp' => now(),
+            'database' => 'connected'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'unhealthy',
+            'timestamp' => now(),
+            'database' => 'disconnected',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});
+
 Route::get('/home', function () {
     return Inertia::render('Welcome');
+});
+
+// Simple status endpoint
+Route::get('/status', function () {
+    return response('OK - Laravel is running', 200)
+        ->header('Content-Type', 'text/plain');
 });
 
 Route::post('/language', [LanguageController::class, 'switch'])->name('language.switch');
@@ -48,16 +74,20 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
+    // Order routes
     Route::resource('orders', OrderController::class);
-    Route::post('orders/{order}/accept-quote', [OrderController::class, 'acceptQuote'])->name('orders.accept-quote');
-    Route::post('orders/{order}/reject-quote', [OrderController::class, 'rejectQuote'])->name('orders.reject-quote');
+    Route::post('orders/{order}/accept', [OrderController::class, 'accept'])->name('orders.accept');
+    Route::post('orders/{order}/pay', [OrderController::class, 'pay'])->name('orders.pay');
     
-    Route::get('membership', [MembershipController::class, 'index'])->name('membership.index');
-    Route::get('membership/plans', [MembershipController::class, 'plans'])->name('membership.plans');
-    Route::post('membership/subscribe', [MembershipController::class, 'subscribe'])->name('membership.subscribe');
+    // Membership routes
+    Route::resource('memberships', MembershipController::class)->only(['index', 'show']);
+    Route::post('memberships/subscribe', [MembershipController::class, 'subscribe'])->name('memberships.subscribe');
+    Route::post('memberships/{membership}/cancel', [MembershipController::class, 'cancel'])->name('memberships.cancel');
+    Route::post('memberships/top-up', [MembershipController::class, 'topUp'])->name('memberships.top-up');
     
-    Route::resource('chats', ChatController::class)->only(['index', 'show', 'create', 'store']);
-    Route::post('chats/{chat}/messages', [ChatController::class, 'sendMessage'])->name('chats.send-message');
+    // Chat routes
+    Route::resource('chats', ChatController::class)->only(['index', 'show', 'store']);
+    Route::post('chats/{chat}/send', [ChatController::class, 'send'])->name('chats.send');
     
     Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::get('payments/deposit', [PaymentController::class, 'deposit'])->name('payments.deposit');
@@ -69,18 +99,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->as('admin.')->group(function () {
     Route::get('/dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
     
-    Route::resource('orders', Admin\OrderController::class)->only(['index', 'show']);
-    Route::get('orders/{order}/quote', [Admin\OrderController::class, 'quote'])->name('orders.quote');
-    Route::post('orders/{order}/quote', [Admin\OrderController::class, 'sendQuote'])->name('orders.send-quote');
-    Route::post('orders/{order}/status', [Admin\OrderController::class, 'updateStatus'])->name('orders.update-status');
-    Route::post('orders/{order}/inspection-photos', [Admin\OrderController::class, 'uploadInspectionPhotos'])->name('orders.inspection-photos');
+    // Admin order management
+    Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('orders/{order}/quote', [OrderController::class, 'quote'])->name('orders.quote');
+    Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
     
-    Route::get('orders/{order}/logistics', [Admin\LogisticsController::class, 'edit'])->name('logistics.edit');
-    Route::put('orders/{order}/logistics', [Admin\LogisticsController::class, 'update'])->name('logistics.update');
+    // Admin chat management
+    Route::get('chats', [ChatController::class, 'index'])->name('chats.index');
+    Route::get('chats/{chat}', [ChatController::class, 'show'])->name('chats.show');
+    Route::post('chats/{chat}/send', [ChatController::class, 'send'])->name('chats.send');
     
-    Route::resource('chats', Admin\ChatController::class)->only(['index', 'show']);
-    Route::post('chats/{chat}/messages', [Admin\ChatController::class, 'sendMessage'])->name('chats.send-message');
-    Route::post('chats/{chat}/close', [Admin\ChatController::class, 'close'])->name('chats.close');
+    // Admin membership management
+    Route::get('memberships', [MembershipController::class, 'index'])->name('memberships.index');
+    Route::get('memberships/{membership}', [MembershipController::class, 'show'])->name('memberships.show');
+    Route::post('memberships/{membership}/extend', [MembershipController::class, 'extend'])->name('memberships.extend');
     
     Route::resource('users', Admin\UserController::class)->only(['index', 'show']);
     Route::post('users/{user}/balance', [Admin\UserController::class, 'updateBalance'])->name('users.update-balance');

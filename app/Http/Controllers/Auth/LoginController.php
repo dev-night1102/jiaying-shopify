@@ -32,8 +32,7 @@ class LoginController extends Controller
         
         // Check if user needs to verify email
         if (!$user->hasVerifiedEmail()) {
-            session(['email' => $user->email]);
-            return redirect()->route('verification.code');
+            return redirect()->route('verification.code')->with('email', $user->email);
         }
 
         return redirect()->intended(

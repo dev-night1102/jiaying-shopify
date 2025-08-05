@@ -114,4 +114,14 @@ class User extends Authenticatable
     {
         return !is_null($this->email_verified_at);
     }
+
+    public function increment($column, $amount = 1, array $extra = [])
+    {
+        return parent::increment($column, $amount, $extra);
+    }
+
+    public function decrement($column, $amount = 1, array $extra = [])
+    {
+        return parent::decrement($column, $amount, $extra);
+    }
 }

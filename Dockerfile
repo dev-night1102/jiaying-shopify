@@ -8,6 +8,7 @@ COPY package*.json ./
 RUN npm install
 
 
+
 # Copy frontend source and config files
 COPY resources resources
 COPY vite.config.js ./
@@ -49,29 +50,26 @@ COPY . .
 # Copy built frontend assets from first stage
 COPY --from=frontend /app/public/build ./public/build
 
-# Render will provide all environment variables directly
-
 # Install PHP dependencies
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
-# Create directories for Laravel
-RUN mkdir -p \
+# Create SQLite database file and directories
+RUN mkdir -p database && \
+    touch database/database.sqlite && \
+    mkdir -p \
     bootstrap/cache \
     storage/framework/views \
     storage/framework/cache \
     storage/framework/sessions \
     storage/logs
 
+# Fix permissions
+RUN chmod -R 775 storage bootstrap/cache database && \
+    chown -R www-data:www-data storage bootstrap/cache database
+
 # Copy startup script
 COPY start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
-
-# Set environment variables for SQLite
-ENV DB_CONNECTION=sqlite
-ENV DB_DATABASE=/var/www/database/database.sqlite
-ENV DB_FOREIGN_KEYS=true
-ENV APP_ENV=production
-ENV APP_DEBUG=false
 
 # Expose port for Render
 EXPOSE 10000

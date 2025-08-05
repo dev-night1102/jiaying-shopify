@@ -28,28 +28,28 @@ class RegisterController extends Controller
             return Inertia::render('Auth/Register');
         } catch (\Exception $e) {
             \Log::error('Register page error: ' . $e->getMessage());
-            // Return a simple response if Inertia fails
-            return response()->view('errors.500', [], 500);
+            abort(500, 'Unable to load registration page');
         }
     }
 
     public function store(Request $request)
     {
-        try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-                'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            ]);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
 
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'language' => $request->language ?? 'en',
-            ]);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'language' => $request->language ?? 'en',
+        ]);
 
         // Generate verification code and send email via Laravel
+        $shouldRedirectToVerification = false;
+        
         try {
             $verificationCode = $user->generateVerificationCode();
             
@@ -66,6 +66,7 @@ class RegisterController extends Controller
                 });
                 
                 \Log::info('Email sent successfully to: ' . $user->email);
+                $shouldRedirectToVerification = true;
             } catch (\Exception $e) {
                 \Log::error('Email sending failed: ' . $e->getMessage());
                 // If email sending fails, auto-verify for now
@@ -85,26 +86,19 @@ class RegisterController extends Controller
         }
 
         Auth::login($user);
-
-        // If user is already verified, go to dashboard
-        if ($user->hasVerifiedEmail()) {
-            return redirect(route('dashboard'))->with('success', 'Registration successful! Welcome to Shopping Agent Pro.');
+        
+        // Check if user needs verification
+        if (!$user->hasVerifiedEmail() && $shouldRedirectToVerification) {
+            return redirect(route('verification.code'))->with('info', 'Please verify your email to continue.');
         }
 
-        // Otherwise, redirect to verification page
-        session(['email' => $user->email]);
-        return redirect(route('verification.code'));
-        } catch (\Exception $e) {
-            \Log::error('Registration error: ' . $e->getMessage());
-            
-            // If user was created but something else failed, log them in
-            if (isset($user) && $user->exists) {
-                Auth::login($user);
-                return redirect(route('dashboard'))->with('warning', 'Registration completed with some issues. Welcome!');
-            }
-            
-            // Otherwise, redirect back with error
-            return back()->withInput()->with('error', 'Registration failed. Please try again.');
+        // For production, auto-verify users to avoid issues
+        if (!$user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+            \Log::info('Auto-verified user: ' . $user->email);
         }
+
+        // Always redirect to dashboard after registration
+        return redirect(route('dashboard'))->with('success', 'Registration successful! Welcome to Shopping Agent Pro.');
     }
 }

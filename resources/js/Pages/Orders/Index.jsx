@@ -101,25 +101,27 @@ export default function OrdersIndex({ auth, orders = [], filters = {} }) {
                                             {order.status === 'quoted' && (
                                                 <>
                                                     <button
-                                                        onClick={() => router.post(`/orders/${order.id}/accept-quote`)}
+                                                        onClick={() => router.post(`/orders/${order.id}/accept`)}
                                                         className="btn btn-primary btn-sm"
                                                     >
                                                         {t('Accept Quote')}
                                                     </button>
-                                                    <button
-                                                        onClick={() => router.post(`/orders/${order.id}/reject-quote`)}
-                                                        className="btn btn-danger btn-sm"
-                                                    >
-                                                        {t('Reject Quote')}
-                                                    </button>
                                                 </>
                                             )}
                                             {order.status === 'accepted' && (
-                                                <Link
-                                                    href={`/orders/${order.id}/pay`}
+                                                <button
+                                                    onClick={() => router.post(`/orders/${order.id}/pay`)}
                                                     className="btn btn-primary btn-sm"
                                                 >
                                                     {t('Pay Now')}
+                                                </button>
+                                            )}
+                                            {order.chat_id && (
+                                                <Link
+                                                    href={`/chats/${order.chat_id}`}
+                                                    className="btn btn-secondary btn-sm"
+                                                >
+                                                    💬 {t('Chat')}
                                                 </Link>
                                             )}
                                             <Link

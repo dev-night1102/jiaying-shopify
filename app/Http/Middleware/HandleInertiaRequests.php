@@ -37,52 +37,108 @@ class HandleInertiaRequests extends Middleware
     {
         $notifications = [];
         
-        if ($request->user()) {
-            $user = $request->user();
-            
-            if ($user->isAdmin()) {
-                // Admin notifications
-                $notifications = [
-                    'unread_chats' => \App\Models\Chat::withCount('unreadMessages')
-                        ->having('unread_messages_count', '>', 0)
-                        ->where('status', 'active')
-                        ->count(),
-                    'pending_orders' => \App\Models\Order::where('status', 'requested')->count(),
-                    'quoted_orders' => \App\Models\Order::where('status', 'quoted')->count(),
-                    'paid_orders' => \App\Models\Order::where('status', 'paid')->count(),
-                ];
-            } else {
-                // User notifications
-                $notifications = [
-                    'unread_chats' => $user->chats()
-                        ->withCount('unreadMessages')
-                        ->having('unread_messages_count', '>', 0)
-                        ->where('status', 'active')
-                        ->count(),
-                    'order_updates' => $user->orders()
-                        ->whereIn('status', ['quoted', 'purchased', 'inspected', 'shipped'])
-                        ->where('updated_at', '>', $user->last_seen_orders ?? '1970-01-01')
-                        ->count(),
-                ];
+        try {
+            if ($request->user()) {
+                $user = $request->user();
+                
+                try {
+                    if ($user->isAdmin()) {
+                        // Admin notifications with error handling
+                        $notifications = [
+                            'unread_chats' => 0,
+                            'pending_orders' => 0,
+                            'quoted_orders' => 0,
+                            'paid_orders' => 0,
+                        ];
+                        
+                        try {
+                            if (class_exists('\App\Models\Chat')) {
+                                $notifications['unread_chats'] = \App\Models\Chat::where('status', 'active')->count();
+                            }
+                        } catch (\Exception $e) {
+                            \Log::warning('Inertia: Chat count failed: ' . $e->getMessage());
+                        }
+                        
+                        try {
+                            if (class_exists('\App\Models\Order')) {
+                                $notifications['pending_orders'] = \App\Models\Order::where('status', 'requested')->count();
+                                $notifications['quoted_orders'] = \App\Models\Order::where('status', 'quoted')->count();
+                                $notifications['paid_orders'] = \App\Models\Order::where('status', 'paid')->count();
+                            }
+                        } catch (\Exception $e) {
+                            \Log::warning('Inertia: Order counts failed: ' . $e->getMessage());
+                        }
+                        
+                    } else {
+                        // User notifications with error handling
+                        $notifications = [
+                            'unread_chats' => 0,
+                            'order_updates' => 0,
+                        ];
+                        
+                        try {
+                            if (method_exists($user, 'chats')) {
+                                $notifications['unread_chats'] = $user->chats()->where('status', 'active')->count();
+                            }
+                        } catch (\Exception $e) {
+                            \Log::warning('Inertia: User chats count failed: ' . $e->getMessage());
+                        }
+                        
+                        try {
+                            if (method_exists($user, 'orders')) {
+                                $notifications['order_updates'] = $user->orders()
+                                    ->whereIn('status', ['quoted', 'purchased', 'inspected', 'shipped'])
+                                    ->count();
+                            }
+                        } catch (\Exception $e) {
+                            \Log::warning('Inertia: User orders count failed: ' . $e->getMessage());
+                        }
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Inertia: Notification loading failed: ' . $e->getMessage());
+                }
             }
+        } catch (\Exception $e) {
+            \Log::error('Inertia: User data loading failed: ' . $e->getMessage());
+        }
+
+        // Safe user data extraction
+        $userData = null;
+        try {
+            if ($request->user()) {
+                $user = $request->user();
+                $userData = [
+                    'id' => $user->id ?? null,
+                    'name' => $user->name ?? '',
+                    'email' => $user->email ?? '',
+                    'role' => $user->role ?? 'user',
+                    'balance' => $user->balance ?? 0,
+                    'language' => $user->language ?? 'en',
+                    'membership' => null,
+                ];
+                
+                // Try to get membership safely
+                try {
+                    if (method_exists($user, 'activeMembership') && $user->activeMembership) {
+                        $membership = $user->activeMembership;
+                        $userData['membership'] = [
+                            'type' => $membership->type ?? 'trial',
+                            'expires_at' => $membership->expires_at ?? null,
+                            'days_remaining' => method_exists($membership, 'daysRemaining') ? $membership->daysRemaining() : 0,
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Inertia: Membership data failed: ' . $e->getMessage());
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error('Inertia: User data extraction failed: ' . $e->getMessage());
         }
 
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user() ? [
-                    'id' => $request->user()->id,
-                    'name' => $request->user()->name,
-                    'email' => $request->user()->email,
-                    'role' => $request->user()->role,
-                    'balance' => $request->user()->balance,
-                    'language' => $request->user()->language,
-                    'membership' => $request->user()->activeMembership ? [
-                        'type' => $request->user()->activeMembership->type,
-                        'expires_at' => $request->user()->activeMembership->expires_at,
-                        'days_remaining' => $request->user()->activeMembership->daysRemaining(),
-                    ] : null,
-                ] : null,
+                'user' => $userData,
             ],
             'notifications' => $notifications,
             'flash' => [

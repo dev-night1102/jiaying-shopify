@@ -155,7 +155,7 @@ export default function AdminDashboard({ auth, stats = {}, recentOrders = [], pe
                     </div>
 
                     {/* Quick Actions */}
-                    <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <a href="/admin/orders" className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
                             <div className="flex items-center">
                                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -180,6 +180,20 @@ export default function AdminDashboard({ auth, stats = {}, recentOrders = [], pe
                                 <div className="ml-4">
                                     <h4 className="text-lg font-semibold">{t('support_chats')}</h4>
                                     <p className="text-gray-600">{t('respond_customer_inquiries')}</p>
+                                </div>
+                            </div>
+                        </a>
+
+                        <a href="/admin/memberships" className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                            <div className="flex items-center">
+                                <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                    </svg>
+                                </div>
+                                <div className="ml-4">
+                                    <h4 className="text-lg font-semibold">Memberships</h4>
+                                    <p className="text-gray-600">Manage user memberships</p>
                                 </div>
                             </div>
                         </a>

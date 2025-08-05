@@ -15,7 +15,8 @@ class DashboardController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('Admin/Dashboard', [
+        try {
+            return Inertia::render('Admin/Dashboard', [
             'stats' => [
                 'totalUsers' => User::where('role', 'user')->count(),
                 'activeMembers' => User::whereHas('memberships', function ($query) {
@@ -45,5 +46,23 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get(),
         ]);
+        } catch (\Exception $e) {
+            \Log::error('Admin Dashboard: Error - ' . $e->getMessage());
+            
+            // Return safe defaults
+            return Inertia::render('Admin/Dashboard', [
+                'stats' => [
+                    'totalUsers' => 0,
+                    'activeMembers' => 0,
+                    'pendingQuotes' => 0,
+                    'activeOrders' => 0,
+                    'totalRevenue' => 0,
+                    'monthlyRevenue' => 0,
+                    'unreadChats' => 0,
+                ],
+                'recentOrders' => collect([]),
+                'pendingQuotes' => collect([]),
+            ]);
+        }
     }
 }

@@ -63,11 +63,17 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
                             {t('Submit Order')}
                         </Link>
                         <Link
-                            href="/chats/create"
+                            href="/chats"
                             className="btn btn-secondary"
                         >
                             <MessageSquare className="w-4 h-4 mr-2" />
-                            {t('New Chat')}
+                            {t('Chats')}
+                        </Link>
+                        <Link
+                            href="/memberships"
+                            className="btn btn-secondary"
+                        >
+                            {t('Memberships')}
                         </Link>
                     </div>
                 </div>
@@ -88,7 +94,7 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
                             </div>
                             {membership.type === 'trial' && (
                                 <Link
-                                    href="/membership/plans"
+                                    href="/memberships"
                                     className="btn btn-primary"
                                 >
                                     {t('Upgrade Membership')}
