@@ -40,11 +40,11 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
         setIsVisible(true);
         const duration = 2000;
         const steps = 60;
-        const interval = duration / steps;
+        const interval = Math.max(duration / steps, 16); // Minimum 16ms for 60fps
         
         const animations = {};
         Object.keys(defaultStats).forEach(key => {
-            if (typeof defaultStats[key] === 'number') {
+            if (typeof defaultStats[key] === 'number' && defaultStats[key] > 0) {
                 let current = 0;
                 const target = defaultStats[key];
                 const increment = target / steps;
@@ -64,7 +64,7 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
         });
         
         return () => Object.values(animations).forEach(clearInterval);
-    }, []);
+    }, [defaultStats.totalOrders, defaultStats.activeOrders, defaultStats.completedOrders]);
 
     const statCards = [
         {
@@ -142,7 +142,7 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
                 ))}
             </div>
 
-            <div className="relative space-y-8">
+            <div className="relative space-y-8 px-4 sm:px-6 lg:px-8">
                 {/* Header Section with Gradient */}
                 <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-8 shadow-2xl">
                     <div className="absolute inset-0 bg-black opacity-10"></div>

@@ -114,10 +114,13 @@ export default function Welcome() {
             (entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
-                        setIsVisible(prev => ({
-                            ...prev,
-                            [entry.target.dataset.animate]: true
-                        }));
+                        const animateKey = entry.target.dataset.animate;
+                        if (animateKey) {
+                            setIsVisible(prev => ({
+                                ...prev,
+                                [animateKey]: true
+                            }));
+                        }
                     }
                 });
             },
@@ -133,11 +136,13 @@ export default function Welcome() {
 
     // Carousel timer
     useEffect(() => {
+        if (testimonials.length === 0) return;
+        
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % testimonials.length);
         }, 5000);
         return () => clearInterval(timer);
-    }, []);
+    }, [testimonials.length]);
 
     const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % testimonials.length);
     const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + testimonials.length) % testimonials.length);
@@ -485,7 +490,7 @@ export default function Welcome() {
                     </div>
                     
                     <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-                        <p>&copy; 2025 <b style={"color: red"}>Jia Ying</b> ShopAgent Pro. All rights reserved. Made with ❤️ for global shoppers.</p>
+                        <p>&copy; 2024 ShopAgent Pro. All rights reserved. Made with ❤️ for global shoppers.</p>
                     </div>
                 </div>
             </footer>
