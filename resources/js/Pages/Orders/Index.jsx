@@ -82,7 +82,7 @@ export default function OrdersIndex({ auth, orders = [], filters = {} }) {
                 <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-300 rounded-full opacity-10 animate-float" style={{animationDelay: '2s'}}></div>
             </div>
 
-            <div className="relative space-y-8">
+            <div className="relative space-y-8 px-4 sm:px-6 lg:px-8">
                 {/* Header with Gradient Background */}
                 <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 p-8 shadow-2xl animate-slide-down">
                     <div className="absolute inset-0 bg-black opacity-10"></div>

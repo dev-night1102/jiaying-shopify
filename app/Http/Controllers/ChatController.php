@@ -1,152 +1,116 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
 use App\Models\Chat;
-use App\Models\Message;
 use App\Models\Order;
+use App\Services\ChatService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Storage;
+use Inertia\Response;
 
 class ChatController extends Controller
 {
-    public function index(Request $request)
+    private ChatService $chatService;
+
+    public function __construct(ChatService $chatService)
     {
-        $user = $request->user();
-        
-        $chats = Chat::with(['lastMessage.sender', 'order', 'user'])
-            ->where(function ($query) use ($user) {
-                if ($user->isAdmin()) {
-                    // Admin sees all chats
-                    $query->whereHas('messages');
-                } else {
-                    // User sees only their chats
-                    $query->where('user_id', $user->id);
-                }
-            })
-            ->orderBy('last_message_at', 'desc')
-            ->get();
+        $this->chatService = $chatService;
+    }
+
+    public function index(Request $request): Response
+    {
+        $chats = $request->user()->chats()
+            ->with(['order', 'lastMessage'])
+            ->withCount('unreadMessages')
+            ->where('status', 'active')
+            ->latest('last_message_at')
+            ->paginate(20);
 
         return Inertia::render('Chat/Index', [
             'chats' => $chats,
-            'isAdmin' => $user->isAdmin(),
         ]);
     }
 
-    public function show(Request $request, Chat $chat)
+    public function show(Chat $chat): Response
     {
-        $user = $request->user();
-        
-        // Check permissions
-        if (!$user->isAdmin() && $chat->user_id !== $user->id) {
-            abort(403);
-        }
+        $this->authorize('view', $chat);
 
-        // Load messages with sender info
+        $this->chatService->markMessagesAsRead($chat, auth()->user());
+
         $messages = $chat->messages()
-            ->with('sender')
-            ->orderBy('created_at', 'asc')
-            ->get();
-
-        // Mark messages as read
-        $chat->markAsRead($user->id);
+            ->with('sender:id,name,role')
+            ->latest()
+            ->paginate(50);
 
         return Inertia::render('Chat/Show', [
-            'chat' => $chat->load(['user', 'order']),
+            'chat' => $chat->load(['order', 'user']),
             'messages' => $messages,
-            'isAdmin' => $user->isAdmin(),
+        ]);
+    }
+
+    public function create(Request $request): Response
+    {
+        $orderId = $request->query('order_id');
+        $order = $orderId ? Order::findOrFail($orderId) : null;
+
+        if ($order) {
+            $this->authorize('view', $order);
+        }
+
+        // Get user's orders for selection
+        $orders = $request->user()->orders()
+            ->latest()
+            ->get(['id', 'order_number', 'product_link', 'status']);
+
+        return Inertia::render('Chat/Create', [
+            'order' => $order,
+            'orders' => $orders,
         ]);
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'order_id' => 'required|exists:orders,id',
-            'content' => 'required|string|max:1000',
-            'type' => 'in:text,image',
-            'image' => 'nullable|image|max:2048',
+        $validated = $request->validate([
+            'order_id' => 'nullable|exists:orders,id',
+            'message' => 'required|string|max:1000',
         ]);
 
-        $user = $request->user();
-        $order = Order::findOrFail($request->order_id);
+        $order = $validated['order_id'] ? Order::find($validated['order_id']) : null;
 
-        // Check permissions
-        if (!$user->isAdmin() && $order->user_id !== $user->id) {
-            abort(403);
+        if ($order) {
+            $this->authorize('view', $order);
         }
 
-        // Find or create chat for this order
-        $chat = Chat::firstOrCreate(
-            ['order_id' => $request->order_id],
-            [
-                'user_id' => $order->user_id,
-                'status' => 'active',
-                'last_message_at' => now(),
-            ]
+        $chat = $this->chatService->findOrCreateChat($request->user(), $order);
+        
+        $this->chatService->sendMessage(
+            $chat,
+            $request->user(),
+            $validated['message']
         );
 
-        // Handle image upload
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('chat-images', 'public');
-        }
-
-        // Create message
-        $message = Message::create([
-            'chat_id' => $chat->id,
-            'sender_id' => $user->id,
-            'content' => $request->content,
-            'type' => $request->type ?? 'text',
-            'image_path' => $imagePath,
-            'is_read' => false,
-        ]);
-
-        // Update chat last message time
-        $chat->update(['last_message_at' => now()]);
-
-        return response()->json([
-            'message' => $message->load('sender'),
-            'chat' => $chat,
-        ]);
+        return redirect()->route('chats.show', $chat);
     }
 
-    public function send(Request $request, Chat $chat)
+    public function sendMessage(Request $request, Chat $chat)
     {
-        $request->validate([
+        $this->authorize('view', $chat);
+
+        $validated = $request->validate([
             'content' => 'required|string|max:1000',
-            'type' => 'in:text,image',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:5120',
         ]);
 
-        $user = $request->user();
+        $message = $this->chatService->sendMessage(
+            $chat,
+            $request->user(),
+            $validated['content'],
+            $validated['image'] ? 'image' : 'text',
+            $validated['image'] ?? null
+        );
 
-        // Check permissions
-        if (!$user->isAdmin() && $chat->user_id !== $user->id) {
-            abort(403);
-        }
-
-        // Handle image upload
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('chat-images', 'public');
-        }
-
-        // Create message
-        $message = Message::create([
-            'chat_id' => $chat->id,
-            'sender_id' => $user->id,
-            'content' => $request->content,
-            'type' => $request->type ?? 'text',
-            'image_path' => $imagePath,
-            'is_read' => false,
-        ]);
-
-        // Update chat last message time
-        $chat->update(['last_message_at' => now()]);
-
-        return response()->json([
-            'message' => $message->load('sender'),
-        ]);
+        return back();
     }
 }
