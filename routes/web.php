@@ -11,10 +11,16 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\LanguageController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
+    // Redirect authenticated users to dashboard
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
+    
     return Inertia::render('Welcome');
 });
 
@@ -39,6 +45,11 @@ Route::get('/health', function () {
 });
 
 Route::get('/home', function () {
+    // Redirect authenticated users to dashboard
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
+    
     return Inertia::render('Welcome');
 });
 
@@ -86,7 +97,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('memberships/top-up', [MembershipController::class, 'topUp'])->name('memberships.top-up');
     
     // Chat routes
-    Route::resource('chats', ChatController::class)->only(['index', 'show', 'store']);
+    Route::resource('chats', ChatController::class)->only(['index', 'show', 'store', 'create']);
     Route::post('chats/{chat}/send', [ChatController::class, 'send'])->name('chats.send');
     
     Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');

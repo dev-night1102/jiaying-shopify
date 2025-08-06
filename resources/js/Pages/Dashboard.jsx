@@ -19,21 +19,20 @@ import {
     Sparkles
 } from 'lucide-react';
 import StatusBadge from '@/Components/StatusBadge';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 export default function Dashboard({ auth, stats = {}, recentOrders = [], membership }) {
     const { t } = useTranslation();
     const [animatedValues, setAnimatedValues] = useState({});
     const [isVisible, setIsVisible] = useState(false);
     
-    // Provide default values for stats
-    const defaultStats = {
-        totalOrders: 0,
-        activeOrders: 0,
-        completedOrders: 0,
-        balance: '0.00',
-        ...stats
-    };
+    // Provide default values for stats - memoized to prevent re-creation
+    const defaultStats = useMemo(() => ({
+        totalOrders: stats?.totalOrders || 0,
+        activeOrders: stats?.activeOrders || 0,
+        completedOrders: stats?.completedOrders || 0,
+        balance: stats?.balance || '0.00'
+    }), [stats?.totalOrders, stats?.activeOrders, stats?.completedOrders, stats?.balance]);
 
     // Animate counter effect
     useEffect(() => {
@@ -64,7 +63,7 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
         });
         
         return () => Object.values(animations).forEach(clearInterval);
-    }, [defaultStats.totalOrders, defaultStats.activeOrders, defaultStats.completedOrders]);
+    }, [defaultStats]);
 
     const statCards = [
         {

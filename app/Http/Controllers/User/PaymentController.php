@@ -27,6 +27,7 @@ class PaymentController extends Controller
 
         return Inertia::render('Payments/Index', [
             'payments' => $payments,
+            'balance' => $request->user()->balance ?? 0,
         ]);
     }
 
