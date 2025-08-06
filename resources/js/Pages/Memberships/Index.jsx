@@ -57,14 +57,14 @@ export default function Index({ auth, memberships, isAdmin, membershipPlans }) {
 
     const handleSubscribe = (planType) => {
         setIsProcessing(true);
-        router.post(route('memberships.subscribe'), { type: planType }, {
+        router.post('/memberships/subscribe', { type: planType }, {
             onFinish: () => setIsProcessing(false)
         });
     };
 
     const handleTopUp = (amount) => {
         setIsProcessing(true);
-        router.post(route('memberships.top-up'), { amount }, {
+        router.post('/memberships/top-up', { amount }, {
             onFinish: () => setIsProcessing(false)
         });
     };
@@ -72,7 +72,7 @@ export default function Index({ auth, memberships, isAdmin, membershipPlans }) {
     const handleCancel = (membershipId) => {
         if (confirm('Are you sure you want to cancel this membership?')) {
             setIsProcessing(true);
-            router.post(route('memberships.cancel', membershipId), {}, {
+            router.post(`/memberships/${membershipId}/cancel`, {}, {
                 onFinish: () => setIsProcessing(false)
             });
         }
