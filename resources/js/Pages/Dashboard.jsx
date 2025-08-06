@@ -267,7 +267,7 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
                                     <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
                                         <div 
                                             className={`h-full bg-gradient-to-r ${stat.gradient} rounded-full animate-pulse`}
-                                            style={{width: `${Math.random() * 40 + 60}%`}}
+                                            style={{width: `${75 + index * 5}%`}}
                                         ></div>
                                     </div>
                                 </div>
