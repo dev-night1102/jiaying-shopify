@@ -24,7 +24,7 @@ export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
-        remember: false,
+        remember: true, // Default to checked for better UX
     });
 
     useEffect(() => {
@@ -228,16 +228,19 @@ export default function Login({ status, canResetPassword }) {
 
                             {/* Remember & Forgot */}
                             <div className="flex items-center justify-between">
-                                <label className="flex items-center group cursor-pointer">
+                                <label className="flex items-center group cursor-pointer p-2 -m-2 rounded-lg hover:bg-gray-50 transition-colors duration-200">
                                     <input
                                         type="checkbox"
-                                        className="w-4 h-4 text-indigo-600 border-2 border-gray-300 rounded focus:ring-indigo-500 focus:ring-2 transition-colors duration-200"
+                                        className="w-5 h-5 text-indigo-600 border-2 border-gray-300 rounded focus:ring-indigo-500 focus:ring-2 transition-colors duration-200"
                                         checked={data.remember}
                                         onChange={(e) => setData('remember', e.target.checked)}
                                     />
-                                    <span className="ml-3 text-sm text-gray-600 group-hover:text-gray-900 transition-colors duration-200">
-                                        {t('Remember me')}
-                                    </span>
+                                    <div className="ml-3">
+                                        <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors duration-200">
+                                            {t('Remember me')}
+                                        </span>
+                                        <p className="text-xs text-gray-500 mt-0.5">Stay logged in for 30 days</p>
+                                    </div>
                                 </label>
 
                                 {canResetPassword && (

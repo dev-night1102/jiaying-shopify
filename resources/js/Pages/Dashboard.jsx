@@ -143,7 +143,7 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
 
             <div className="relative space-y-8 px-4 sm:px-6 lg:px-8">
                 {/* Header Section with Gradient */}
-                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-8 shadow-2xl">
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-600 via-slate-700 to-slate-800 p-8 shadow-2xl">
                     <div className="absolute inset-0 bg-black opacity-10"></div>
                     <div className="absolute -top-24 -right-24 w-96 h-96 bg-white rounded-full opacity-10 animate-pulse-slow"></div>
                     <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-white rounded-full opacity-10 animate-pulse-slow" style={{animationDelay: '1s'}}></div>
@@ -162,7 +162,7 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
                                 href="/orders/create"
                                 className="group relative inline-flex items-center px-6 py-3 bg-white text-indigo-600 font-semibold rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
                             >
-                                <span className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                                <span className="absolute inset-0 bg-gradient-to-r from-slate-600 to-slate-700 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
                                 <Plus className="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-300" />
                                 {t('Submit Order')}
                                 <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-yellow-400 animate-pulse" />
@@ -349,7 +349,7 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
                                             {order.total_cost && (
                                                 <div className="text-right">
                                                     <p className="text-xs text-gray-500 mb-1">Total</p>
-                                                    <span className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                                                    <span className="text-lg font-bold bg-gradient-to-r from-slate-600 to-slate-700 bg-clip-text text-transparent">
                                                         ${order.total_cost}
                                                     </span>
                                                 </div>
@@ -373,7 +373,7 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
                                 <p className="text-gray-500 mb-6 text-lg">{t('No orders yet')}</p>
                                 <Link
                                     href="/orders/create"
-                                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
                                 >
                                     <Plus className="w-5 h-5 mr-2" />
                                     {t('Submit Your First Order')}

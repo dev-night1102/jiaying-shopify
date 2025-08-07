@@ -125,10 +125,8 @@ class ChatController extends Controller
         // Update chat last message time
         $chat->update(['last_message_at' => now()]);
 
-        return response()->json([
-            'message' => $message->load('sender'),
-            'chat' => $chat,
-        ]);
+        // Redirect to the chat page after creation
+        return redirect()->route('chats.show', $chat)->with('success', 'Chat started successfully!');
     }
 
     public function send(Request $request, Chat $chat)

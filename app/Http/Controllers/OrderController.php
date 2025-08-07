@@ -57,7 +57,7 @@ class OrderController extends Controller
         
         // Only non-admin users can create orders
         if ($user->isAdmin()) {
-            return redirect()->route('admin.dashboard');
+            return redirect()->route('dashboard')->with('error', 'Admins cannot create orders');
         }
 
         return Inertia::render('Orders/Create', [

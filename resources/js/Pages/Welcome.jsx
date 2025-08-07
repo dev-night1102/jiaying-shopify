@@ -154,9 +154,13 @@ export default function Welcome() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
                         <div className="flex items-center">
-                            <div className="flex-shrink-0">
-                                <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-slate-800 bg-clip-text text-transparent">
-                                    ShopAgent Pro
+                            <div className="flex items-center space-x-3 group">
+                                <div className="relative p-2 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-xl shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                    <ShoppingBag className="w-6 h-6 text-white relative z-10" />
+                                </div>
+                                <h1 className="text-2xl font-black bg-gradient-to-r from-slate-800 via-slate-700 to-slate-600 bg-clip-text text-transparent tracking-tight">
+                                    GlobalFlow
                                 </h1>
                             </div>
                         </div>
@@ -443,7 +447,7 @@ export default function Welcome() {
                     <div className="grid md:grid-cols-4 gap-8">
                         <div className="col-span-2 md:col-span-1">
                             <h3 className="text-2xl font-bold text-white mb-4">
-                                Global Procurement Pro
+                                GlobalFlow
                             </h3>
                             <p className="text-gray-400 mb-6 font-light">
                                 Enterprise procurement solutions for seamless international sourcing.
@@ -490,7 +494,7 @@ export default function Welcome() {
                     </div>
                     
                     <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-                        <p>&copy; 2024 ShopAgent Pro. All rights reserved. Made with ❤️ for global shoppers.</p>
+                        <p>&copy; 2024 GlobalFlow. All rights reserved. Empowering global commerce with seamless precision.</p>
                     </div>
                 </div>
             </footer>

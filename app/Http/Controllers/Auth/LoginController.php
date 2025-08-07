@@ -30,6 +30,13 @@ class LoginController extends Controller
         
         $user = $request->user();
         
+        \Log::info('User logged in successfully', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'remember' => $request->boolean('remember'),
+            'session_lifetime' => config('session.lifetime')
+        ]);
+        
         // Check if user needs to verify email
         if (!$user->hasVerifiedEmail()) {
             return redirect()->route('verification.code')->with('email', $user->email);

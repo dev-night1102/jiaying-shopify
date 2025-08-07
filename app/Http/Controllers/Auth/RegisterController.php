@@ -45,6 +45,14 @@ class RegisterController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'language' => $request->language ?? 'en',
+            'role' => 'user', // Explicitly set role
+            'balance' => 0.00, // Explicitly set balance
+        ]);
+
+        \Log::info('New user registered successfully', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'name' => $user->name
         ]);
 
         // Generate verification code and send email via Laravel
