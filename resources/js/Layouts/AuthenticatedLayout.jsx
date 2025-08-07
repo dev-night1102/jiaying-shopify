@@ -92,7 +92,7 @@ export default function AuthenticatedLayout({ user, children }) {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50">
             {/* Top Navigation Bar */}
             <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -100,13 +100,13 @@ export default function AuthenticatedLayout({ user, children }) {
                         {/* Logo and Brand */}
                         <div className="flex items-center space-x-4">
                             <Link href="/" className="flex items-center space-x-3 group">
-                                <div className="relative p-3 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 rounded-2xl shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <div className="relative p-3 bg-gradient-to-br from-emerald-600 via-teal-600 to-blue-600 rounded-2xl shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-blue-400/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                     <ShoppingBag className="w-8 h-8 text-white relative z-10" />
-                                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl opacity-20 blur-sm group-hover:opacity-40 transition-opacity duration-500"></div>
+                                    <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 to-blue-600 rounded-2xl opacity-20 blur-sm group-hover:opacity-40 transition-opacity duration-500"></div>
                                 </div>
                                 <div className="transition-all duration-300 group-hover:translate-x-1">
-                                    <h1 className="text-2xl font-black bg-gradient-to-r from-slate-800 via-slate-700 to-slate-600 bg-clip-text text-transparent tracking-tight">
+                                    <h1 className="text-2xl font-black bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 bg-clip-text text-transparent tracking-tight">
                                         GlobalFlow
                                     </h1>
                                     <p className="text-xs font-medium text-slate-500 tracking-wide uppercase">
@@ -122,7 +122,7 @@ export default function AuthenticatedLayout({ user, children }) {
                                 <Link
                                     key={item.name}
                                     href={item.href}
-                                    className="group relative px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200 flex items-center space-x-2"
+                                    className="group relative px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-200 flex items-center space-x-2"
                                 >
                                     <item.icon className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
                                     <span>{item.name}</span>
@@ -146,7 +146,7 @@ export default function AuthenticatedLayout({ user, children }) {
                             <div className="relative">
                                 <button 
                                     onClick={() => setSearchOpen(!searchOpen)}
-                                    className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200"
+                                    className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200"
                                 >
                                     <Search className="w-5 h-5" />
                                 </button>
@@ -162,7 +162,7 @@ export default function AuthenticatedLayout({ user, children }) {
                                                     placeholder="Search orders, chats, or payments..."
                                                     value={searchTerm}
                                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                                    className="pl-9 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none"
+                                                    className="pl-9 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:border-emerald-500 focus:outline-none"
                                                     autoFocus
                                                 />
                                             </div>
@@ -176,7 +176,7 @@ export default function AuthenticatedLayout({ user, children }) {
                                                 </button>
                                                 <button
                                                     type="submit"
-                                                    className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                                                    className="px-3 py-1.5 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
                                                 >
                                                     Search
                                                 </button>
@@ -190,7 +190,7 @@ export default function AuthenticatedLayout({ user, children }) {
                             <div className="relative">
                                 <button 
                                     onClick={handleNotificationClick}
-                                    className="relative p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200"
+                                    className="relative p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200"
                                 >
                                     <Bell className="w-5 h-5" />
                                     {(notifications?.total || 0) > 0 && (

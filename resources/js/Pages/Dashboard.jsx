@@ -70,9 +70,9 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
             title: t('Total Orders'),
             value: animatedValues.totalOrders || 0,
             icon: Package,
-            gradient: 'from-blue-500 to-cyan-500',
-            shadowColor: 'shadow-blue-500/30',
-            iconBg: 'bg-gradient-to-br from-blue-400 to-cyan-400',
+            gradient: 'from-emerald-500 to-teal-500',
+            shadowColor: 'shadow-emerald-500/30',
+            iconBg: 'bg-gradient-to-br from-emerald-400 to-teal-400',
             trend: '+12%',
             trendUp: true
         },
@@ -80,9 +80,9 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
             title: t('Active Orders'),
             value: animatedValues.activeOrders || 0,
             icon: ShoppingCart,
-            gradient: 'from-amber-500 to-orange-500',
-            shadowColor: 'shadow-amber-500/30',
-            iconBg: 'bg-gradient-to-br from-amber-400 to-orange-400',
+            gradient: 'from-teal-500 to-blue-500',
+            shadowColor: 'shadow-teal-500/30',
+            iconBg: 'bg-gradient-to-br from-teal-400 to-blue-400',
             trend: '+5%',
             trendUp: true
         },
@@ -90,9 +90,9 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
             title: t('Completed Orders'),
             value: animatedValues.completedOrders || 0,
             icon: CheckCircle,
-            gradient: 'from-emerald-500 to-green-500',
-            shadowColor: 'shadow-emerald-500/30',
-            iconBg: 'bg-gradient-to-br from-emerald-400 to-green-400',
+            gradient: 'from-blue-500 to-cyan-500',
+            shadowColor: 'shadow-blue-500/30',
+            iconBg: 'bg-gradient-to-br from-blue-400 to-cyan-400',
             trend: '+18%',
             trendUp: true
         },
@@ -100,9 +100,9 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
             title: t('Account Balance'),
             value: `$${defaultStats.balance}`,
             icon: DollarSign,
-            gradient: 'from-violet-500 to-purple-500',
-            shadowColor: 'shadow-violet-500/30',
-            iconBg: 'bg-gradient-to-br from-violet-400 to-purple-400',
+            gradient: 'from-cyan-500 to-emerald-500',
+            shadowColor: 'shadow-cyan-500/30',
+            iconBg: 'bg-gradient-to-br from-cyan-400 to-emerald-400',
             trend: '+8%',
             trendUp: true
         },
@@ -129,7 +129,7 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
                         style={{
                             width: shape.size,
                             height: shape.size,
-                            background: `radial-gradient(circle, rgba(99,102,241,0.3) 0%, rgba(139,92,246,0.1) 100%)`,
+                            background: `radial-gradient(circle, rgba(16,185,129,0.3) 0%, rgba(59,130,246,0.1) 100%)`,
                             top: shape.top,
                             left: shape.left,
                             right: shape.right,
@@ -143,7 +143,7 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
 
             <div className="relative space-y-8 px-4 sm:px-6 lg:px-8">
                 {/* Header Section with Gradient */}
-                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-600 via-slate-700 to-slate-800 p-8 shadow-2xl">
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 p-8 shadow-2xl">
                     <div className="absolute inset-0 bg-black opacity-10"></div>
                     <div className="absolute -top-24 -right-24 w-96 h-96 bg-white rounded-full opacity-10 animate-pulse-slow"></div>
                     <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-white rounded-full opacity-10 animate-pulse-slow" style={{animationDelay: '1s'}}></div>
@@ -160,9 +160,9 @@ export default function Dashboard({ auth, stats = {}, recentOrders = [], members
                         <div className="flex space-x-3 animate-slide-left">
                             <Link
                                 href="/orders/create"
-                                className="group relative inline-flex items-center px-6 py-3 bg-white text-indigo-600 font-semibold rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
+                                className="group relative inline-flex items-center px-6 py-3 bg-white text-emerald-600 font-semibold rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
                             >
-                                <span className="absolute inset-0 bg-gradient-to-r from-slate-600 to-slate-700 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                                <span className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-blue-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
                                 <Plus className="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-300" />
                                 {t('Submit Order')}
                                 <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-yellow-400 animate-pulse" />

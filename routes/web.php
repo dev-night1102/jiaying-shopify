@@ -99,6 +99,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Chat routes
     Route::resource('chats', ChatController::class)->only(['index', 'show', 'store', 'create']);
     Route::post('chats/{chat}/send', [ChatController::class, 'send'])->name('chats.send');
+    Route::post('chats/{chat}/typing', [ChatController::class, 'typing'])->name('chats.typing');
     
     Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::get('payments/deposit', [PaymentController::class, 'deposit'])->name('payments.deposit');
@@ -120,6 +121,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->as('admin.')-
     Route::get('chats', [ChatController::class, 'index'])->name('chats.index');
     Route::get('chats/{chat}', [ChatController::class, 'show'])->name('chats.show');
     Route::post('chats/{chat}/send', [ChatController::class, 'send'])->name('chats.send');
+    Route::post('chats/{chat}/typing', [ChatController::class, 'typing'])->name('chats.typing');
     
     // Admin membership management
     Route::get('memberships', [MembershipController::class, 'index'])->name('memberships.index');

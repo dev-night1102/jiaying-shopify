@@ -50,9 +50,9 @@ export default function Login({ status, canResetPassword }) {
         <>
             <Head title={t('Login')} />
             
-            <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex">
+            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50 flex">
                 {/* Left Side - Image and Features */}
-                <div className="hidden lg:flex lg:flex-1 relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600">
+                <div className="hidden lg:flex lg:flex-1 relative overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-600 to-blue-600">
                     {/* Background Image */}
                     <div 
                         className="absolute inset-0 opacity-30"
@@ -64,7 +64,7 @@ export default function Login({ status, canResetPassword }) {
                     />
                     
                     {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/90 via-purple-600/90 to-pink-600/90" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/90 via-teal-600/90 to-blue-600/90" />
                     
                     {/* Animated Background Elements */}
                     <div className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full animate-float" />
@@ -89,7 +89,7 @@ export default function Login({ status, canResetPassword }) {
                             <div className="mb-12 animate-slide-up" style={{animationDelay: '0.2s'}}>
                                 <h2 className="text-4xl font-bold text-white mb-4 leading-tight">
                                     Welcome Back to Your
-                                    <span className="block text-yellow-300">Global Shopping Hub</span>
+                                    <span className="block text-cyan-300">Global Shopping Hub</span>
                                 </h2>
                                 <p className="text-xl text-white/90 leading-relaxed">
                                     Access your orders, track shipments, and discover amazing products from around the world.
@@ -136,10 +136,10 @@ export default function Login({ status, canResetPassword }) {
                     {/* Mobile Header */}
                     <div className="lg:hidden mb-8 text-center">
                         <div className="flex items-center justify-center mb-4">
-                            <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl mr-3">
+                            <div className="p-3 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-2xl mr-3">
                                 <ShoppingBag className="w-8 h-8 text-white" />
                             </div>
-                            <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                            <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
                                 ShopAgent Pro
                             </h1>
                         </div>
@@ -175,7 +175,7 @@ export default function Login({ status, canResetPassword }) {
                                     {t('Email Address')}
                                 </label>
                                 <div className="relative group">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors duration-200" />
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-emerald-600 transition-colors duration-200" />
                                     <input
                                         type="email"
                                         value={data.email}
@@ -183,7 +183,7 @@ export default function Login({ status, canResetPassword }) {
                                         className={`w-full pl-12 pr-4 py-4 border-2 rounded-xl text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-0 ${
                                             errors.email 
                                                 ? 'border-red-300 focus:border-red-500 bg-red-50' 
-                                                : 'border-gray-200 focus:border-indigo-500 hover:border-gray-300 bg-gray-50 focus:bg-white'
+                                                : 'border-gray-200 focus:border-emerald-500 hover:border-gray-300 bg-gray-50 focus:bg-white'
                                         }`}
                                         placeholder="Enter your email address"
                                         autoComplete="username"
@@ -200,7 +200,7 @@ export default function Login({ status, canResetPassword }) {
                                     {t('Password')}
                                 </label>
                                 <div className="relative group">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors duration-200" />
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-emerald-600 transition-colors duration-200" />
                                     <input
                                         type={showPassword ? 'text' : 'password'}
                                         value={data.password}
@@ -208,7 +208,7 @@ export default function Login({ status, canResetPassword }) {
                                         className={`w-full pl-12 pr-12 py-4 border-2 rounded-xl text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-0 ${
                                             errors.password 
                                                 ? 'border-red-300 focus:border-red-500 bg-red-50' 
-                                                : 'border-gray-200 focus:border-indigo-500 hover:border-gray-300 bg-gray-50 focus:bg-white'
+                                                : 'border-gray-200 focus:border-emerald-500 hover:border-gray-300 bg-gray-50 focus:bg-white'
                                         }`}
                                         placeholder="Enter your password"
                                         autoComplete="current-password"
@@ -216,7 +216,7 @@ export default function Login({ status, canResetPassword }) {
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 transition-colors duration-200"
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-600 transition-colors duration-200"
                                     >
                                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                     </button>
@@ -231,7 +231,7 @@ export default function Login({ status, canResetPassword }) {
                                 <label className="flex items-center group cursor-pointer p-2 -m-2 rounded-lg hover:bg-gray-50 transition-colors duration-200">
                                     <input
                                         type="checkbox"
-                                        className="w-5 h-5 text-indigo-600 border-2 border-gray-300 rounded focus:ring-indigo-500 focus:ring-2 transition-colors duration-200"
+                                        className="w-5 h-5 text-emerald-600 border-2 border-gray-300 rounded focus:ring-emerald-500 focus:ring-2 transition-colors duration-200"
                                         checked={data.remember}
                                         onChange={(e) => setData('remember', e.target.checked)}
                                     />
@@ -246,7 +246,7 @@ export default function Login({ status, canResetPassword }) {
                                 {canResetPassword && (
                                     <Link
                                         href="/forgot-password"
-                                        className="text-sm font-semibold text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
+                                        className="text-sm font-semibold text-emerald-600 hover:text-emerald-500 transition-colors duration-200"
                                     >
                                         {t('Forgot Password?')}
                                     </Link>
@@ -257,9 +257,9 @@ export default function Login({ status, canResetPassword }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="group relative w-full flex items-center justify-center py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none overflow-hidden"
+                                className="group relative w-full flex items-center justify-center py-4 px-6 bg-gradient-to-r from-emerald-600 to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none overflow-hidden"
                             >
-                                <span className="absolute inset-0 bg-gradient-to-r from-indigo-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                <span className="absolute inset-0 bg-gradient-to-r from-emerald-700 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                 <div className="relative flex items-center">
                                     {processing ? (
                                         <>
@@ -289,7 +289,7 @@ export default function Login({ status, canResetPassword }) {
                             {/* Register Link */}
                             <Link
                                 href="/register"
-                                className="group relative w-full flex items-center justify-center py-4 px-6 bg-white text-indigo-600 font-semibold rounded-xl border-2 border-indigo-200 hover:border-indigo-300 hover:bg-indigo-50 transform hover:scale-[1.02] transition-all duration-300"
+                                className="group relative w-full flex items-center justify-center py-4 px-6 bg-white text-emerald-600 font-semibold rounded-xl border-2 border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50 transform hover:scale-[1.02] transition-all duration-300"
                             >
                                 <div className="relative flex items-center">
                                     {t('Create New Account')}
@@ -312,8 +312,8 @@ export default function Login({ status, canResetPassword }) {
                     </div>
 
                     {/* Background Decorations */}
-                    <div className="absolute top-10 right-10 w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full opacity-60 animate-pulse" />
-                    <div className="absolute bottom-10 left-10 w-16 h-16 bg-gradient-to-br from-pink-100 to-indigo-100 rounded-full opacity-60 animate-float" />
+                    <div className="absolute top-10 right-10 w-20 h-20 bg-gradient-to-br from-emerald-100 to-blue-100 rounded-full opacity-60 animate-pulse" />
+                    <div className="absolute bottom-10 left-10 w-16 h-16 bg-gradient-to-br from-blue-100 to-emerald-100 rounded-full opacity-60 animate-float" />
                 </div>
             </div>
         </>
