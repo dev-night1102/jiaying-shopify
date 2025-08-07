@@ -12,7 +12,9 @@
       "Bash(php artisan:*)",
       "Bash(docker run:*)",
       "Bash(sudo apt:*)",
-      "Bash(sudo apt install:*)"
+      "Bash(sudo apt install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }
