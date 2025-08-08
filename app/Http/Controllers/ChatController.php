@@ -125,18 +125,16 @@ class ChatController extends Controller
         // Update chat last message time
         $chat->update(['last_message_at' => now()]);
 
-        return response()->json([
-            'message' => $message->load('sender'),
-            'chat' => $chat,
-        ]);
+        // Redirect to the chat page after creation
+        return redirect()->route('chats.show', $chat)->with('success', 'Chat started successfully!');
     }
 
     public function send(Request $request, Chat $chat)
     {
         $request->validate([
-            'content' => 'required|string|max:1000',
-            'type' => 'in:text,image',
-            'image' => 'nullable|image|max:2048',
+            'content' => 'nullable|string|max:1000',
+            'type' => 'in:text,file',
+            'files.*' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,pdf,doc,docx',
         ]);
 
         $user = $request->user();
@@ -146,27 +144,47 @@ class ChatController extends Controller
             abort(403);
         }
 
-        // Handle image upload
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('chat-images', 'public');
+        // Handle file uploads
+        $filePath = null;
+        if ($request->hasFile('files')) {
+            $files = $request->file('files');
+            if (count($files) > 0) {
+                $file = $files[0]; // Take first file for now
+                $filePath = $file->store('chat-files', 'public');
+            }
         }
 
-        // Create message
-        $message = Message::create([
-            'chat_id' => $chat->id,
-            'sender_id' => $user->id,
-            'content' => $request->content,
-            'type' => $request->type ?? 'text',
-            'image_path' => $imagePath,
-            'is_read' => false,
-        ]);
+        // Only create message if there's content or file
+        if ($request->content || $filePath) {
+            // Create message
+            $message = Message::create([
+                'chat_id' => $chat->id,
+                'sender_id' => $user->id,
+                'content' => $request->content ?? '',
+                'type' => $filePath ? 'file' : 'text',
+                'file_path' => $filePath,
+                'is_read' => false,
+            ]);
+        } else {
+            return response()->json(['error' => 'Message content or file required'], 400);
+        }
 
         // Update chat last message time
         $chat->update(['last_message_at' => now()]);
 
-        return response()->json([
-            'message' => $message->load('sender'),
-        ]);
+        return back();
+    }
+
+    public function typing(Request $request, Chat $chat)
+    {
+        $user = $request->user();
+
+        // Check permissions
+        if (!$user->isAdmin() && $chat->user_id !== $user->id) {
+            abort(403);
+        }
+
+        // For now, just return success - in production you'd use Laravel Echo/Pusher
+        return response()->json(['status' => 'typing']);
     }
 }

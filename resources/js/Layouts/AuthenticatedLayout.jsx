@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 import { 
     Menu, 
@@ -24,12 +24,18 @@ import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import FlashMessages from '@/Components/FlashMessages';
 
 export default function AuthenticatedLayout({ user, children }) {
-    const { auth, notifications } = usePage().props;
+    const { auth, notifications, recentSearches = [], recentNotifications = [] } = usePage().props;
     const currentUser = user || auth?.user;
     const { t } = useTranslation();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [notificationsOpen, setNotificationsOpen] = useState(false);
     const isAdmin = currentUser?.role === 'admin';
+    const searchRef = useRef(null);
+    const notificationRef = useRef(null);
+    const userDropdownRef = useRef(null);
 
     const navigation = isAdmin ? [
         { name: t('Admin Dashboard'), href: '/admin/dashboard', icon: Home },
@@ -68,8 +74,61 @@ export default function AuthenticatedLayout({ user, children }) {
         router.post('/logout');
     };
 
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchTerm.trim()) {
+            router.get('/search', { q: searchTerm.trim() });
+            setSearchOpen(false);
+            setSearchTerm('');
+        }
+    };
+
+    const handleNotificationClick = () => {
+        setNotificationsOpen(!notificationsOpen);
+        // Mark notifications as read when opened
+        if (!notificationsOpen && notifications?.total > 0) {
+            router.post('/notifications/mark-as-read', {}, { 
+                preserveState: true,
+                preserveScroll: true 
+            });
+        }
+    };
+
+    // Click outside to close dropdowns
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setSearchOpen(false);
+            }
+            if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+                setNotificationsOpen(false);
+            }
+            if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+                setUserDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    // Clear notification badges when visiting pages
+    useEffect(() => {
+        const currentPath = window.location.pathname;
+        if (currentPath === '/orders' || currentPath === '/chats' || currentPath === '/admin/orders') {
+            // Clear relevant badges by making a request
+            router.post('/notifications/clear-badge', { 
+                page: currentPath 
+            }, { 
+                preserveState: true,
+                preserveScroll: true,
+                onlyKeys: [] // Don't reload any data
+            });
+        }
+    }, [window.location.pathname]);
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50">
             {/* Top Navigation Bar */}
             <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -77,15 +136,17 @@ export default function AuthenticatedLayout({ user, children }) {
                         {/* Logo and Brand */}
                         <div className="flex items-center space-x-4">
                             <Link href="/" className="flex items-center space-x-3 group">
-                                <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-                                    <ShoppingBag className="w-8 h-8 text-white" />
+                                <div className="relative p-3 bg-gradient-to-br from-emerald-600 via-teal-600 to-blue-600 rounded-2xl shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-blue-400/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                    <ShoppingBag className="w-8 h-8 text-white relative z-10" />
+                                    <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 to-blue-600 rounded-2xl opacity-20 blur-sm group-hover:opacity-40 transition-opacity duration-500"></div>
                                 </div>
-                                <div>
-                                    <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                        ShopAgent Pro
+                                <div className="transition-all duration-300 group-hover:translate-x-1">
+                                    <h1 className="text-2xl font-black bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 bg-clip-text text-transparent tracking-tight">
+                                        GlobalFlow
                                     </h1>
-                                    <p className="text-xs text-gray-500">
-                                        {isAdmin ? 'Admin Portal' : 'Client Dashboard'}
+                                    <p className="text-xs font-medium text-slate-500 tracking-wide uppercase">
+                                        {isAdmin ? '⚡ Admin Command' : '🌍 Global Commerce'}
                                     </p>
                                 </div>
                             </Link>
@@ -97,7 +158,7 @@ export default function AuthenticatedLayout({ user, children }) {
                                 <Link
                                     key={item.name}
                                     href={item.href}
-                                    className="group relative px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200 flex items-center space-x-2"
+                                    className="group relative px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-200 flex items-center space-x-2"
                                 >
                                     <item.icon className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
                                     <span>{item.name}</span>
@@ -118,22 +179,218 @@ export default function AuthenticatedLayout({ user, children }) {
                         {/* Right Side Actions */}
                         <div className="flex items-center space-x-4">
                             {/* Search Button */}
-                            <button className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200">
-                                <Search className="w-5 h-5" />
-                            </button>
-
-                            {/* Notifications */}
-                            <button className="relative p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200">
-                                <Bell className="w-5 h-5" />
-                                {(notifications?.total || 0) > 0 && (
-                                    <div className="absolute -top-1 -right-1">
-                                        <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-pulse">
-                                            {notifications.total}
-                                        </span>
-                                        <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping opacity-75"></div>
+                            <div className="relative" ref={searchRef}>
+                                <button 
+                                    onClick={() => setSearchOpen(!searchOpen)}
+                                    className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200"
+                                >
+                                    <Search className="w-5 h-5" />
+                                </button>
+                                
+                                {/* Search Dropdown */}
+                                {searchOpen && (
+                                    <div className="absolute right-0 top-12 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50">
+                                        <div className="p-4 border-b border-gray-200">
+                                            <form onSubmit={handleSearch}>
+                                                <div className="relative">
+                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Search orders, chats, payments..."
+                                                        value={searchTerm}
+                                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                                        className="pl-9 pr-4 py-2.5 w-full border border-gray-300 rounded-lg focus:border-emerald-500 focus:outline-none"
+                                                        autoFocus
+                                                    />
+                                                </div>
+                                            </form>
+                                        </div>
+                                        
+                                        {/* Quick Search Results */}
+                                        <div className="p-4">
+                                            <h4 className="text-sm font-semibold text-gray-700 mb-3">Quick Access</h4>
+                                            <div className="space-y-1">
+                                                <Link 
+                                                    href="/orders" 
+                                                    className="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                                    onClick={() => setSearchOpen(false)}
+                                                >
+                                                    <Package className="w-4 h-4 mr-3 text-emerald-600" />
+                                                    My Orders
+                                                </Link>
+                                                <Link 
+                                                    href="/chats" 
+                                                    className="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                                    onClick={() => setSearchOpen(false)}
+                                                >
+                                                    <MessageSquare className="w-4 h-4 mr-3 text-teal-600" />
+                                                    Chat Support
+                                                </Link>
+                                                <Link 
+                                                    href="/payments" 
+                                                    className="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                                    onClick={() => setSearchOpen(false)}
+                                                >
+                                                    <CreditCard className="w-4 h-4 mr-3 text-blue-600" />
+                                                    Payment History
+                                                </Link>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
-                            </button>
+                            </div>
+
+                            {/* Notifications */}
+                            <div className="relative" ref={notificationRef}>
+                                <button 
+                                    onClick={handleNotificationClick}
+                                    className="relative p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200"
+                                >
+                                    <Bell className="w-5 h-5" />
+                                    {(notifications?.total || 0) > 0 && (
+                                        <div className="absolute -top-1 -right-1">
+                                            <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-pulse">
+                                                {notifications.total}
+                                            </span>
+                                            <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping opacity-75"></div>
+                                        </div>
+                                    )}
+                                </button>
+
+                                {/* Notifications Dropdown */}
+                                {notificationsOpen && (
+                                    <div className="absolute right-0 top-12 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 max-h-96 overflow-y-auto z-50">
+                                        <div className="p-4 border-b border-gray-200">
+                                            <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                                        </div>
+                                        <div className="divide-y divide-gray-100">
+                                            {(() => {
+                                                // Sample notifications for demonstration
+                                                const sampleNotifications = isAdmin ? [
+                                                    {
+                                                        id: 1,
+                                                        title: "New Order Submitted",
+                                                        message: "Order #ORD-2025-001 needs review and quotation",
+                                                        time: "2 minutes ago",
+                                                        type: "order",
+                                                        unread: true,
+                                                        link: "/admin/orders"
+                                                    },
+                                                    {
+                                                        id: 2,
+                                                        title: "Payment Received",
+                                                        message: "Payment confirmed for Order #ORD-2025-002",
+                                                        time: "15 minutes ago",
+                                                        type: "payment",
+                                                        unread: true,
+                                                        link: "/admin/orders"
+                                                    },
+                                                    {
+                                                        id: 3,
+                                                        title: "New Chat Message",
+                                                        message: "Customer inquiry about international shipping",
+                                                        time: "1 hour ago",
+                                                        type: "chat",
+                                                        unread: false,
+                                                        link: "/admin/chats"
+                                                    }
+                                                ] : [
+                                                    {
+                                                        id: 1,
+                                                        title: "Order Status Update",
+                                                        message: "Your order has been shipped and is on its way!",
+                                                        time: "30 minutes ago",
+                                                        type: "order",
+                                                        unread: true,
+                                                        link: "/orders"
+                                                    },
+                                                    {
+                                                        id: 2,
+                                                        title: "Quote Ready",
+                                                        message: "Your quote for the electronics order is ready",
+                                                        time: "2 hours ago",
+                                                        type: "quote",
+                                                        unread: true,
+                                                        link: "/orders"
+                                                    },
+                                                    {
+                                                        id: 3,
+                                                        title: "Welcome to GlobalFlow",
+                                                        message: "Thank you for joining our premium service!",
+                                                        time: "1 day ago",
+                                                        type: "welcome",
+                                                        unread: false,
+                                                        link: "/dashboard"
+                                                    }
+                                                ];
+
+                                                const displayNotifications = notifications?.items || sampleNotifications;
+                                                
+                                                return displayNotifications.length > 0 ? (
+                                                    displayNotifications.map((notification, index) => {
+                                                        const typeColors = {
+                                                            order: 'bg-emerald-500',
+                                                            payment: 'bg-green-500',
+                                                            chat: 'bg-blue-500',
+                                                            quote: 'bg-teal-500',
+                                                            welcome: 'bg-purple-500',
+                                                            default: 'bg-gray-500'
+                                                        };
+                                                        
+                                                        const typeIcons = {
+                                                            order: Package,
+                                                            payment: CreditCard,
+                                                            chat: MessageSquare,
+                                                            quote: CreditCard,
+                                                            welcome: Sparkles,
+                                                            default: Bell
+                                                        };
+
+                                                        const IconComponent = typeIcons[notification.type] || typeIcons.default;
+                                                        const dotColor = typeColors[notification.type] || typeColors.default;
+                                                        
+                                                        return (
+                                                            <div key={index} className="p-4 hover:bg-gray-50 transition-colors cursor-pointer group">
+                                                                <Link 
+                                                                    href={notification.link || '#'}
+                                                                    onClick={() => setNotificationsOpen(false)}
+                                                                    className="flex items-start space-x-3"
+                                                                >
+                                                                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 flex-shrink-0 group-hover:scale-110 transition-transform">
+                                                                        <IconComponent className="w-4 h-4 text-gray-600" />
+                                                                    </div>
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <div className="flex items-center justify-between">
+                                                                            <p className={`text-sm font-medium ${notification.unread ? 'text-gray-900' : 'text-gray-700'} truncate`}>
+                                                                                {notification.title}
+                                                                            </p>
+                                                                            {notification.unread && (
+                                                                                <div className={`w-2 h-2 ${dotColor} rounded-full flex-shrink-0 ml-2`}></div>
+                                                                            )}
+                                                                        </div>
+                                                                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                                                            {notification.message}
+                                                                        </p>
+                                                                        <p className="text-xs text-gray-500 mt-2">
+                                                                            {notification.time}
+                                                                        </p>
+                                                                    </div>
+                                                                </Link>
+                                                            </div>
+                                                        );
+                                                    })
+                                                ) : (
+                                                    <div className="p-8 text-center">
+                                                        <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                                                        <p className="text-gray-500">No new notifications</p>
+                                                        <p className="text-xs text-gray-400 mt-1">You're all caught up!</p>
+                                                    </div>
+                                                );
+                                            })()}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
 
                             {/* Language Switcher */}
                             <div className="hidden sm:block">
@@ -141,12 +398,12 @@ export default function AuthenticatedLayout({ user, children }) {
                             </div>
 
                             {/* User Menu */}
-                            <div className="relative">
+                            <div className="relative" ref={userDropdownRef}>
                                 <button
                                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                                    className="flex items-center space-x-3 p-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-all duration-200"
+                                    className="flex items-center space-x-3 p-2 text-sm font-medium text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-xl transition-all duration-200"
                                 >
-                                    <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                                    <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center shadow-lg">
                                         <User className="w-4 h-4 text-white" />
                                     </div>
                                     <div className="hidden sm:block text-left">
@@ -161,7 +418,7 @@ export default function AuthenticatedLayout({ user, children }) {
                                     <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-200 py-2 animate-slide-down z-50">
                                         <div className="px-4 py-3 border-b border-gray-100">
                                             <div className="flex items-center space-x-3">
-                                                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                                                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
                                                     <User className="w-6 h-6 text-white" />
                                                 </div>
                                                 <div>
@@ -169,12 +426,12 @@ export default function AuthenticatedLayout({ user, children }) {
                                                     <p className="text-xs text-gray-500">{currentUser?.email}</p>
                                                     <div className="flex items-center mt-1">
                                                         {isAdmin ? (
-                                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
                                                                 <Crown className="w-3 h-3 mr-1" />
                                                                 Admin
                                                             </span>
                                                         ) : (
-                                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-700">
                                                                 <Activity className="w-3 h-3 mr-1" />
                                                                 Member
                                                             </span>
@@ -187,7 +444,7 @@ export default function AuthenticatedLayout({ user, children }) {
                                         <div className="py-2">
                                             <Link
                                                 href="/profile"
-                                                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-200"
+                                                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors duration-200"
                                             >
                                                 <Settings className="w-4 h-4 mr-3" />
                                                 Profile Settings
@@ -195,7 +452,7 @@ export default function AuthenticatedLayout({ user, children }) {
                                             {!isAdmin && (
                                                 <Link
                                                     href="/memberships"
-                                                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors duration-200"
+                                                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors duration-200"
                                                 >
                                                     <Crown className="w-4 h-4 mr-3" />
                                                     Upgrade Plan
@@ -220,7 +477,7 @@ export default function AuthenticatedLayout({ user, children }) {
                             {/* Mobile Menu Toggle */}
                             <button
                                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                className="md:hidden p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200"
+                                className="md:hidden p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200"
                             >
                                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                             </button>
@@ -236,7 +493,7 @@ export default function AuthenticatedLayout({ user, children }) {
                                 <Link
                                     key={item.name}
                                     href={item.href}
-                                    className="flex items-center justify-between px-3 py-2 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200"
+                                    className="flex items-center justify-between px-3 py-2 text-base font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
                                     <div className="flex items-center space-x-3">

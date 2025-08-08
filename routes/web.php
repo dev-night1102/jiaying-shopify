@@ -85,6 +85,11 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
+    // Profile route (temporary redirect to dashboard)
+    Route::get('/profile', function () {
+        return redirect()->route('dashboard')->with('info', 'Profile settings coming soon!');
+    })->name('profile');
+    
     // Order routes
     Route::resource('orders', OrderController::class);
     Route::post('orders/{order}/accept', [OrderController::class, 'accept'])->name('orders.accept');
@@ -99,12 +104,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Chat routes
     Route::resource('chats', ChatController::class)->only(['index', 'show', 'store', 'create']);
     Route::post('chats/{chat}/send', [ChatController::class, 'send'])->name('chats.send');
+    Route::post('chats/{chat}/typing', [ChatController::class, 'typing'])->name('chats.typing');
     
     Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::get('payments/deposit', [PaymentController::class, 'deposit'])->name('payments.deposit');
     Route::post('payments/deposit', [PaymentController::class, 'processDeposit'])->name('payments.process-deposit');
     Route::get('orders/{order}/pay', [PaymentController::class, 'payOrder'])->name('payments.pay-order');
     Route::post('orders/{order}/pay', [PaymentController::class, 'processOrderPayment'])->name('payments.process-order');
+    
+    // Notification routes
+    Route::post('notifications/mark-as-read', function() {
+        // Mark all notifications as read for current user
+        return response()->json(['success' => true]);
+    })->name('notifications.mark-read');
+    
+    Route::post('notifications/clear-badge', function() {
+        // Clear badge count for specific page
+        return response()->json(['success' => true]);
+    })->name('notifications.clear-badge');
+    
+    // Search route
+    Route::get('search', function() {
+        $query = request('q');
+        // For now, redirect to orders page with search
+        return redirect()->route('orders.index')->with('search', $query);
+    })->name('search');
 });
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->as('admin.')->group(function () {
@@ -120,6 +144,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->as('admin.')-
     Route::get('chats', [ChatController::class, 'index'])->name('chats.index');
     Route::get('chats/{chat}', [ChatController::class, 'show'])->name('chats.show');
     Route::post('chats/{chat}/send', [ChatController::class, 'send'])->name('chats.send');
+    Route::post('chats/{chat}/typing', [ChatController::class, 'typing'])->name('chats.typing');
     
     // Admin membership management
     Route::get('memberships', [MembershipController::class, 'index'])->name('memberships.index');

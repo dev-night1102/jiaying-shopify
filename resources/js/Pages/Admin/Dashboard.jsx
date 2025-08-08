@@ -1,216 +1,438 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useTranslation } from '@/Utils/i18n';
 import StatusBadge from '@/Components/StatusBadge';
+import { 
+    Users, 
+    Package, 
+    DollarSign, 
+    TrendingUp, 
+    Clock, 
+    CheckCircle,
+    AlertCircle,
+    BarChart3,
+    PieChart,
+    ArrowUpRight,
+    ArrowDownRight,
+    Calendar,
+    Eye,
+    ExternalLink,
+    Activity,
+    Target,
+    Award,
+    Globe
+} from 'lucide-react';
 
-export default function AdminDashboard({ auth, stats = {}, recentOrders = [], pendingChats = [] }) {
+// Simple chart components for basic data visualization
+const SimpleBarChart = ({ data, color = "emerald" }) => {
+    if (!data || data.length === 0) return <div className="text-gray-500 text-sm">No data available</div>;
+    
+    const maxValue = Math.max(...data.map(d => d.orders));
+    
+    return (
+        <div className="flex items-end justify-between h-32 space-x-2">
+            {data.map((item, index) => (
+                <div key={index} className="flex flex-col items-center flex-1">
+                    <div 
+                        className={`w-full bg-${color}-500 rounded-t-sm transition-all duration-300 hover:bg-${color}-600`}
+                        style={{
+                            height: `${(item.orders / maxValue) * 100}%`,
+                            minHeight: item.orders > 0 ? '8px' : '2px'
+                        }}
+                    ></div>
+                    <span className="text-xs text-gray-500 mt-2">{item.month}</span>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+const SimpleLineChart = ({ data, color = "teal" }) => {
+    if (!data || data.length === 0) return <div className="text-gray-500 text-sm">No data available</div>;
+    
+    const maxValue = Math.max(...data.map(d => d.revenue));
+    const points = data.map((item, index) => ({
+        x: (index / (data.length - 1)) * 100,
+        y: 100 - ((item.revenue / maxValue) * 100)
+    }));
+    
+    const pathD = points.reduce((acc, point, index) => {
+        return acc + `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`;
+    }, '');
+    
+    return (
+        <div className="relative h-32">
+            <svg className="w-full h-full" viewBox="0 0 100 100">
+                <path
+                    d={pathD}
+                    fill="none"
+                    stroke={`rgb(20 184 166)`} // teal-500
+                    strokeWidth="2"
+                    className="drop-shadow-sm"
+                />
+                {points.map((point, index) => (
+                    <circle
+                        key={index}
+                        cx={point.x}
+                        cy={point.y}
+                        r="1.5"
+                        fill={`rgb(20 184 166)`}
+                        className="drop-shadow-sm"
+                    />
+                ))}
+            </svg>
+            <div className="flex justify-between mt-2 text-xs text-gray-500">
+                {data.map((item, index) => (
+                    <span key={index}>{item.month}</span>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+export default function AdminDashboard({ 
+    auth, 
+    stats = {}, 
+    chartData = {},
+    recentOrders = [], 
+    pendingQuotes = [] 
+}) {
     const { t } = useTranslation();
     
-    // Provide default values for stats
-    const defaultStats = {
-        total_orders: 0,
-        pending_orders: 0,
-        total_revenue: '0.00',
-        active_users: 0,
-        ...stats
+    // Stats cards configuration
+    const statsCards = [
+        {
+            title: 'Total Users',
+            value: stats.totalUsers || 0,
+            icon: Users,
+            color: 'emerald',
+            growth: stats.userGrowth || 0,
+            description: 'Active customers'
+        },
+        {
+            title: 'Total Orders',
+            value: stats.totalOrders || 0,
+            icon: Package,
+            color: 'teal',
+            growth: stats.orderGrowth || 0,
+            description: 'All time orders'
+        },
+        {
+            title: 'Total Revenue',
+            value: `$${(stats.totalRevenue || 0).toLocaleString()}`,
+            icon: DollarSign,
+            color: 'blue',
+            growth: 12.5,
+            description: 'Lifetime earnings'
+        },
+        {
+            title: 'Conversion Rate',
+            value: `${stats.conversionRate || 0}%`,
+            icon: Target,
+            color: 'purple',
+            growth: 3.2,
+            description: 'Orders completed'
+        }
+    ];
+
+    const formatGrowth = (growth) => {
+        const isPositive = growth > 0;
+        return (
+            <div className={`flex items-center text-sm ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                {isPositive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                <span className="font-medium">{Math.abs(growth)}%</span>
+            </div>
+        );
     };
 
     return (
         <AuthenticatedLayout user={auth.user}>
-            <Head title={t('admin_dashboard')} />
+            <Head title="Admin Dashboard" />
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div className="py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Header */}
                     <div className="mb-8">
-                        <h2 className="text-3xl font-bold text-gray-900">{t('admin_dashboard')}</h2>
-                        <p className="text-gray-600">{t('manage_orders_users_system')}</p>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h1 className="text-3xl font-bold text-gray-900 flex items-center">
+                                    <Activity className="w-8 h-8 mr-3 text-emerald-600" />
+                                    Admin Dashboard
+                                </h1>
+                                <p className="text-gray-600 mt-1">Welcome back! Here's what's happening with your business.</p>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                                <div className="text-sm text-gray-500">
+                                    Last updated: {new Date().toLocaleTimeString()}
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Stats Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                            <div className="flex items-center">
-                                <div className="flex-shrink-0">
-                                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
+                        {statsCards.map((card, index) => (
+                            <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className={`p-3 rounded-lg bg-${card.color}-100`}>
+                                        <card.icon className={`w-6 h-6 text-${card.color}-600`} />
                                     </div>
+                                    {formatGrowth(card.growth)}
                                 </div>
-                                <div className="ml-4">
-                                    <p className="text-sm font-medium text-gray-600">{t('total_orders')}</p>
-                                    <p className="text-2xl font-semibold text-gray-900">{defaultStats.total_orders}</p>
+                                <div>
+                                    <p className="text-sm text-gray-600 mb-1">{card.title}</p>
+                                    <p className="text-2xl font-bold text-gray-900">{card.value}</p>
+                                    <p className="text-xs text-gray-500 mt-1">{card.description}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Charts Section */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        {/* Orders Chart */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                                        <BarChart3 className="w-5 h-5 mr-2 text-emerald-600" />
+                                        Orders Overview
+                                    </h3>
+                                    <p className="text-sm text-gray-600">Monthly order trends</p>
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                    Last 6 months
+                                </div>
+                            </div>
+                            <SimpleBarChart data={chartData.monthlyOrders} color="emerald" />
+                        </div>
+
+                        {/* Revenue Chart */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                                        <TrendingUp className="w-5 h-5 mr-2 text-teal-600" />
+                                        Revenue Trends
+                                    </h3>
+                                    <p className="text-sm text-gray-600">Monthly revenue performance</p>
+                                </div>
+                                <div className="text-sm font-medium text-teal-600">
+                                    ${(stats.monthlyRevenue || 0).toLocaleString()}
+                                </div>
+                            </div>
+                            <SimpleLineChart data={chartData.monthlyRevenue} color="teal" />
+                        </div>
+                    </div>
+
+                    {/* Status Overview */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-600">Pending Quotes</p>
+                                    <p className="text-3xl font-bold text-yellow-600">{stats.pendingQuotes || 0}</p>
+                                </div>
+                                <div className="p-3 bg-yellow-100 rounded-lg">
+                                    <Clock className="w-6 h-6 text-yellow-600" />
                                 </div>
                             </div>
                         </div>
-
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                            <div className="flex items-center">
-                                <div className="flex-shrink-0">
-                                    <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
+                        
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-600">Active Orders</p>
+                                    <p className="text-3xl font-bold text-blue-600">{stats.activeOrders || 0}</p>
                                 </div>
-                                <div className="ml-4">
-                                    <p className="text-sm font-medium text-gray-600">{t('pending_orders')}</p>
-                                    <p className="text-2xl font-semibold text-gray-900">{defaultStats.pending_orders}</p>
+                                <div className="p-3 bg-blue-100 rounded-lg">
+                                    <Package className="w-6 h-6 text-blue-600" />
                                 </div>
                             </div>
                         </div>
-
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                            <div className="flex items-center">
-                                <div className="flex-shrink-0">
-                                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
-                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
+                        
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-600">Completed Orders</p>
+                                    <p className="text-3xl font-bold text-green-600">{stats.completedOrders || 0}</p>
                                 </div>
-                                <div className="ml-4">
-                                    <p className="text-sm font-medium text-gray-600">{t('revenue')}</p>
-                                    <p className="text-2xl font-semibold text-gray-900">${defaultStats.total_revenue}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                            <div className="flex items-center">
-                                <div className="flex-shrink-0">
-                                    <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div className="ml-4">
-                                    <p className="text-sm font-medium text-gray-600">{t('active_users')}</p>
-                                    <p className="text-2xl font-semibold text-gray-900">{defaultStats.active_users}</p>
+                                <div className="p-3 bg-green-100 rounded-lg">
+                                    <CheckCircle className="w-6 h-6 text-green-600" />
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
                         {/* Recent Orders */}
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div className="xl:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200">
+                            <div className="p-6 border-b border-gray-200">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                                        <Package className="w-5 h-5 mr-2 text-emerald-600" />
+                                        Recent Orders
+                                    </h3>
+                                    <Link 
+                                        href="/admin/orders"
+                                        className="text-sm text-emerald-600 hover:text-emerald-800 flex items-center"
+                                    >
+                                        View all <ArrowUpRight className="w-4 h-4 ml-1" />
+                                    </Link>
+                                </div>
+                            </div>
                             <div className="p-6">
-                                <h3 className="text-lg font-semibold mb-4">{t('recent_orders')}</h3>
                                 <div className="space-y-4">
-                                    {recentOrders.map((order) => (
-                                        <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                            <div>
-                                                <p className="font-medium">#{order.order_number}</p>
-                                                <p className="text-sm text-gray-600">{order.product_name}</p>
-                                                <p className="text-xs text-gray-500">
-                                                    {new Date(order.created_at).toLocaleDateString()}
-                                                </p>
+                                    {recentOrders.length > 0 ? recentOrders.map((order) => (
+                                        <div key={order.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                            <div className="flex items-center space-x-4">
+                                                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center text-white font-semibold text-sm">
+                                                    {order.user_name?.charAt(0) || 'U'}
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-gray-900">{order.order_number}</p>
+                                                    <p className="text-sm text-gray-600">{order.user_name}</p>
+                                                    <p className="text-xs text-gray-500">
+                                                        {new Date(order.created_at).toLocaleDateString()}
+                                                    </p>
+                                                </div>
                                             </div>
                                             <div className="text-right">
                                                 <StatusBadge status={order.status} />
                                                 {order.total_cost && (
-                                                    <p className="text-sm font-medium mt-1">${order.total_cost}</p>
+                                                    <p className="text-sm font-medium mt-1 text-gray-900">
+                                                        ${order.total_cost.toLocaleString()}
+                                                    </p>
                                                 )}
+                                                <div className="flex items-center mt-1">
+                                                    <Link 
+                                                        href={`/admin/orders/${order.id}`}
+                                                        className="text-xs text-emerald-600 hover:text-emerald-800 flex items-center"
+                                                    >
+                                                        <Eye className="w-3 h-3 mr-1" />
+                                                        View
+                                                    </Link>
+                                                </div>
                                             </div>
                                         </div>
-                                    ))}
+                                    )) : (
+                                        <div className="text-center py-8">
+                                            <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                                            <p className="text-gray-500">No recent orders</p>
+                                        </div>
+                                    )}
                                 </div>
-                                {recentOrders.length === 0 && (
-                                    <p className="text-gray-500 text-center py-4">{t('no_recent_orders')}</p>
-                                )}
                             </div>
                         </div>
 
-                        {/* Pending Support Chats */}
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        {/* Pending Quotes */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                            <div className="p-6 border-b border-gray-200">
+                                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                                    <AlertCircle className="w-5 h-5 mr-2 text-yellow-600" />
+                                    Pending Quotes
+                                </h3>
+                                <p className="text-sm text-gray-600 mt-1">Orders waiting for quotation</p>
+                            </div>
                             <div className="p-6">
-                                <h3 className="text-lg font-semibold mb-4">{t('pending_support_chats')}</h3>
                                 <div className="space-y-4">
-                                    {pendingChats.map((chat) => (
-                                        <div key={chat.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                            <div>
-                                                <p className="font-medium">{chat.subject}</p>
-                                                <p className="text-sm text-gray-600">{chat.user.name}</p>
-                                                <p className="text-xs text-gray-500">
-                                                    {new Date(chat.created_at).toLocaleDateString()}
-                                                </p>
+                                    {pendingQuotes.length > 0 ? pendingQuotes.map((quote) => (
+                                        <div key={quote.id} className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <p className="font-medium text-gray-900">{quote.order_number}</p>
+                                                <span className="text-xs font-medium text-yellow-800 bg-yellow-200 px-2 py-1 rounded-full">
+                                                    {quote.days_waiting} days
+                                                </span>
                                             </div>
-                                            <div className="text-right">
-                                                <StatusBadge status={chat.status} />
-                                                <p className="text-xs text-gray-500 mt-1">
-                                                    {chat.messages_count} {t('messages')}
-                                                </p>
+                                            <p className="text-sm text-gray-600 mb-2">{quote.user_name}</p>
+                                            <p className="text-xs text-gray-500 mb-3">
+                                                {new Date(quote.created_at).toLocaleDateString()}
+                                            </p>
+                                            <div className="flex items-center space-x-2">
+                                                <Link 
+                                                    href={`/admin/orders/${quote.id}`}
+                                                    className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded hover:bg-emerald-200 transition-colors"
+                                                >
+                                                    Create Quote
+                                                </Link>
+                                                {quote.product_link && (
+                                                    <a 
+                                                        href={quote.product_link}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-xs text-gray-600 hover:text-gray-800 flex items-center"
+                                                    >
+                                                        <ExternalLink className="w-3 h-3 mr-1" />
+                                                        View Product
+                                                    </a>
+                                                )}
                                             </div>
                                         </div>
-                                    ))}
+                                    )) : (
+                                        <div className="text-center py-8">
+                                            <CheckCircle className="w-12 h-12 text-green-300 mx-auto mb-4" />
+                                            <p className="text-gray-500">No pending quotes</p>
+                                            <p className="text-xs text-gray-400">All caught up!</p>
+                                        </div>
+                                    )}
                                 </div>
-                                {pendingChats.length === 0 && (
-                                    <p className="text-gray-500 text-center py-4">{t('no_pending_chats')}</p>
-                                )}
                             </div>
                         </div>
                     </div>
 
                     {/* Quick Actions */}
-                    <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <a href="/admin/orders" className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                            <div className="flex items-center">
-                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                    </svg>
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <Link 
+                                href="/admin/orders" 
+                                className="group p-6 border border-gray-200 rounded-lg hover:border-emerald-300 hover:shadow-md transition-all duration-200"
+                            >
+                                <div className="flex items-center mb-4">
+                                    <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+                                        <Package className="w-5 h-5 text-emerald-600" />
+                                    </div>
                                 </div>
-                                <div className="ml-4">
-                                    <h4 className="text-lg font-semibold">{t('manage_orders')}</h4>
-                                    <p className="text-gray-600">{t('view_process_orders')}</p>
-                                </div>
-                            </div>
-                        </a>
+                                <h4 className="font-semibold text-gray-900 mb-2">Manage Orders</h4>
+                                <p className="text-sm text-gray-600">View and process customer orders</p>
+                            </Link>
 
-                        <a href="/admin/chats" className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                            <div className="flex items-center">
-                                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                    </svg>
+                            <Link 
+                                href="/admin/users" 
+                                className="group p-6 border border-gray-200 rounded-lg hover:border-teal-300 hover:shadow-md transition-all duration-200"
+                            >
+                                <div className="flex items-center mb-4">
+                                    <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center group-hover:bg-teal-200 transition-colors">
+                                        <Users className="w-5 h-5 text-teal-600" />
+                                    </div>
                                 </div>
-                                <div className="ml-4">
-                                    <h4 className="text-lg font-semibold">{t('support_chats')}</h4>
-                                    <p className="text-gray-600">{t('respond_customer_inquiries')}</p>
-                                </div>
-                            </div>
-                        </a>
+                                <h4 className="font-semibold text-gray-900 mb-2">Manage Users</h4>
+                                <p className="text-sm text-gray-600">View user accounts and activity</p>
+                            </Link>
 
-                        <a href="/admin/memberships" className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                            <div className="flex items-center">
-                                <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-                                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                                    </svg>
+                            <Link 
+                                href="/admin/chats" 
+                                className="group p-6 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all duration-200"
+                            >
+                                <div className="flex items-center mb-4">
+                                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                                        <Globe className="w-5 h-5 text-blue-600" />
+                                    </div>
                                 </div>
-                                <div className="ml-4">
-                                    <h4 className="text-lg font-semibold">Memberships</h4>
-                                    <p className="text-gray-600">Manage user memberships</p>
-                                </div>
-                            </div>
-                        </a>
+                                <h4 className="font-semibold text-gray-900 mb-2">Customer Support</h4>
+                                <p className="text-sm text-gray-600">Respond to customer inquiries</p>
+                            </Link>
 
-                        <a href="/admin/users" className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                            <div className="flex items-center">
-                                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                                    </svg>
+                            <div className="p-6 border border-gray-200 rounded-lg bg-gray-50">
+                                <div className="flex items-center mb-4">
+                                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                        <Award className="w-5 h-5 text-purple-600" />
+                                    </div>
                                 </div>
-                                <div className="ml-4">
-                                    <h4 className="text-lg font-semibold">{t('manage_users')}</h4>
-                                    <p className="text-gray-600">{t('view_user_accounts')}</p>
-                                </div>
+                                <h4 className="font-semibold text-gray-900 mb-2">Analytics</h4>
+                                <p className="text-sm text-gray-600">Coming soon - Advanced analytics</p>
                             </div>
-                        </a>
+                        </div>
                     </div>
                 </div>
             </div>

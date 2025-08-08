@@ -23,7 +23,7 @@ class PaymentController extends Controller
         $payments = $request->user()->payments()
             ->with(['order', 'membership'])
             ->latest()
-            ->paginate(20);
+            ->get();
 
         return Inertia::render('Payments/Index', [
             'payments' => $payments,

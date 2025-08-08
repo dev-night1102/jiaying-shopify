@@ -69,7 +69,7 @@ export default function Register() {
                     <div 
                         className="absolute inset-0 opacity-30"
                         style={{
-                            backgroundImage: `url('https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200&h=800&fit=crop&q=80')`,
+                            backgroundImage: `url('https://images.unsplash.com/photo-1664447972779-316251bd7b33?w=1200&h=800&fit=crop&q=80')`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center'
                         }}

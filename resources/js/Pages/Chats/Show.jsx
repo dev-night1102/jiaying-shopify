@@ -41,6 +41,26 @@ export default function Show({ auth, chat, messages, isAdmin }) {
         scrollToBottom();
     }, [messages]);
 
+    // Real-time polling for new messages
+    useEffect(() => {
+        const pollForNewMessages = () => {
+            router.reload({ 
+                only: ['messages'],
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    // Silent refresh - no loading indicators
+                }
+            });
+        };
+
+        // Poll every 3 seconds for new messages
+        const interval = setInterval(pollForNewMessages, 3000);
+
+        // Clean up interval on component unmount
+        return () => clearInterval(interval);
+    }, [chat.id]);
+
     const handleSendMessage = async (e) => {
         e.preventDefault();
         

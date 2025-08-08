@@ -12,19 +12,45 @@ class UserController extends Controller
 {
     public function index(Request $request): Response
     {
-        $users = User::withCount('orders')
-            ->when($request->search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                });
-            })
-            ->latest()
-            ->paginate(20);
+        $query = User::withCount('orders');
+        
+        // Search filter
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', "%{$request->search}%")
+                    ->orWhere('email', 'like', "%{$request->search}%");
+            });
+        }
+        
+        // Role filter
+        if ($request->role) {
+            $query->where('role', $request->role);
+        }
+        
+        // Sorting
+        switch ($request->sort) {
+            case 'oldest':
+                $query->oldest();
+                break;
+            case 'name':
+                $query->orderBy('name');
+                break;
+            case 'orders':
+                $query->orderBy('orders_count', 'desc');
+                break;
+            case 'balance':
+                $query->orderBy('balance', 'desc');
+                break;
+            default: // latest
+                $query->latest();
+                break;
+        }
+        
+        $users = $query->paginate(20)->withQueryString();
 
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
-            'filters' => $request->only(['search', 'membership']),
+            'filters' => $request->only(['search', 'role', 'sort']),
         ]);
     }
 
