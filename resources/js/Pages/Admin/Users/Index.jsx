@@ -22,9 +22,10 @@ export default function AdminUsersIndex({ auth, users = {}, filters = {} }) {
     const { t } = useTranslation();
     
     const userData = users?.data || [];
-    const [search, setSearch] = useState(filters.search || '');
-    const [roleFilter, setRoleFilter] = useState(filters.role || '');
-    const [sortBy, setSortBy] = useState(filters.sort || 'latest');
+    const safeFilters = filters || {};
+    const [search, setSearch] = useState(safeFilters.search || '');
+    const [roleFilter, setRoleFilter] = useState(safeFilters.role || '');
+    const [sortBy, setSortBy] = useState(safeFilters.sort || 'latest');
     const [searchTimeout, setSearchTimeout] = useState(null);
 
     // Handle search with debouncing

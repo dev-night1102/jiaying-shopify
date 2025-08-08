@@ -22,6 +22,7 @@ import {
 import { useTranslation } from '@/Utils/i18n';
 import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import FlashMessages from '@/Components/FlashMessages';
+import Footer from '@/Components/Footer';
 
 export default function AuthenticatedLayout({ user, children }) {
     const { auth, notifications, recentSearches = [], recentNotifications = [] } = usePage().props;
@@ -128,7 +129,7 @@ export default function AuthenticatedLayout({ user, children }) {
     }, [window.location.pathname]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50">
+        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50 flex flex-col">
             {/* Top Navigation Bar */}
             <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -513,14 +514,17 @@ export default function AuthenticatedLayout({ user, children }) {
             </header>
 
             {/* Main Content Area */}
-            <div className="pt-16">
+            <div className="pt-16 flex-1 flex flex-col">
                 {/* Flash Messages */}
                 <FlashMessages />
                 
                 {/* Page Content */}
-                <main className="py-6">
+                <main className="py-6 flex-1">
                     {children}
                 </main>
+                
+                {/* Footer */}
+                <Footer />
             </div>
 
             {/* Background click handler for dropdowns */}

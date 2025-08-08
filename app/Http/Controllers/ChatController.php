@@ -148,21 +148,24 @@ class ChatController extends Controller
         $filePath = null;
         if ($request->hasFile('files')) {
             $files = $request->file('files');
-            if (count($files) > 0) {
+            if (is_array($files) && count($files) > 0) {
                 $file = $files[0]; // Take first file for now
                 $filePath = $file->store('chat-files', 'public');
+            } elseif (!is_array($files)) {
+                // Single file upload
+                $filePath = $files->store('chat-files', 'public');
             }
         }
 
         // Only create message if there's content or file
-        if ($request->content || $filePath) {
-            // Create message
+        if ($request->filled('content') || $filePath) {
+            // Create message - use image_path for now since that's what the database has
             $message = Message::create([
                 'chat_id' => $chat->id,
                 'sender_id' => $user->id,
                 'content' => $request->content ?? '',
                 'type' => $filePath ? 'file' : 'text',
-                'file_path' => $filePath,
+                'image_path' => $filePath, // Using image_path since that's what exists in DB
                 'is_read' => false,
             ]);
         } else {

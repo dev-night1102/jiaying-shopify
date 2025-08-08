@@ -264,7 +264,7 @@ export default function WhatsAppChat({ auth, chat, messages = [], isAdmin = fals
             <Head title={`Chat with ${partner.name}`} />
             
             {/* Full-width Chat Container */}
-            <div className="h-[calc(100vh-4rem)] flex flex-col bg-white shadow-lg rounded-lg mx-4 my-4">
+            <div className="h-[calc(100vh-8rem)] flex flex-col bg-white shadow-lg rounded-lg mx-4 my-4">
                 
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg rounded-t-lg">
@@ -334,26 +334,26 @@ export default function WhatsAppChat({ auth, chat, messages = [], isAdmin = fals
                                         }
                                     `}>
                                         {/* Message Content */}
-                                        {message.type === 'file' && message.file_path && (
+                                        {(message.type === 'file' || message.type === 'image') && message.image_path && (
                                             <div className="mb-2">
-                                                {message.file_path.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                                                {message.image_path.match(/\.(jpg|jpeg|png|gif)$/i) ? (
                                                     <img 
-                                                        src={`/storage/${message.file_path}`} 
+                                                        src={`/storage/${message.image_path}`} 
                                                         alt="Shared image" 
                                                         className="max-w-full rounded-lg cursor-pointer"
-                                                        onClick={() => window.open(`/storage/${message.file_path}`, '_blank')}
+                                                        onClick={() => window.open(`/storage/${message.image_path}`, '_blank')}
                                                     />
                                                 ) : (
                                                     <div className="flex items-center space-x-2 p-2 bg-black/10 rounded-lg">
-                                                        {getFileIcon(message.file_path)}
+                                                        {getFileIcon(message.image_path)}
                                                         <div className="flex-1 min-w-0">
                                                             <p className="text-sm truncate">
-                                                                {message.file_path.split('/').pop()}
+                                                                {message.image_path.split('/').pop()}
                                                             </p>
                                                             <p className="text-xs opacity-70">Document</p>
                                                         </div>
                                                         <a 
-                                                            href={`/storage/${message.file_path}`} 
+                                                            href={`/storage/${message.image_path}`} 
                                                             download
                                                             className="p-1 hover:bg-black/10 rounded"
                                                         >
@@ -365,7 +365,11 @@ export default function WhatsAppChat({ auth, chat, messages = [], isAdmin = fals
                                         )}
                                         
                                         {message.content && (
-                                            <p className="text-sm break-words">{message.content}</p>
+                                            <p className={`break-words ${
+                                                message.content.match(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]$/u) 
+                                                    ? 'text-5xl' 
+                                                    : 'text-sm'
+                                            }`}>{message.content}</p>
                                         )}
                                         
                                         {/* Timestamp and Status */}

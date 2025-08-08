@@ -80,9 +80,9 @@ export default function Index({ auth, memberships, isAdmin, membershipPlans }) {
 
     const planIcons = {
         trial: { icon: Gift, gradient: 'from-gray-400 to-gray-600' },
-        basic: { icon: Star, gradient: 'from-blue-400 to-cyan-600' },
-        premium: { icon: Crown, gradient: 'from-yellow-400 to-orange-600' },
-        vip: { icon: Gem, gradient: 'from-purple-400 to-pink-600' }
+        basic: { icon: Star, gradient: 'from-blue-400 to-teal-600' },
+        premium: { icon: Crown, gradient: 'from-teal-400 to-emerald-600' },
+        vip: { icon: Gem, gradient: 'from-emerald-400 to-cyan-600' }
     };
 
     const planFeatureIcons = [CheckCircle, Zap, Shield, Trophy, Users, Activity];
@@ -93,15 +93,15 @@ export default function Index({ auth, memberships, isAdmin, membershipPlans }) {
 
             {/* Animated Background */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full opacity-10 animate-float"></div>
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-300 rounded-full opacity-10 animate-float" style={{animationDelay: '2s'}}></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-300 rounded-full opacity-5 animate-pulse-slow"></div>
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-300 rounded-full opacity-10 animate-float"></div>
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-teal-300 rounded-full opacity-10 animate-float" style={{animationDelay: '2s'}}></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-300 rounded-full opacity-5 animate-pulse-slow"></div>
             </div>
 
             <div className="relative py-12 space-y-8">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     {/* Premium Header */}
-                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 p-10 shadow-2xl mb-8 animate-slide-down">
+                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 p-10 shadow-2xl mb-8 animate-slide-down">
                         <div className="absolute inset-0 bg-black opacity-10"></div>
                         <div className="absolute -top-24 -right-24 w-96 h-96 bg-white rounded-full opacity-10 animate-pulse-slow"></div>
                         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-white rounded-full opacity-10 animate-pulse-slow" style={{animationDelay: '1s'}}></div>
@@ -155,9 +155,9 @@ export default function Index({ auth, memberships, isAdmin, membershipPlans }) {
                     {/* Current Membership Status */}
                     {auth.user.membership && (
                         <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-r ${
-                            auth.user.membership.type === 'vip' ? 'from-purple-600 via-pink-600 to-red-600' :
-                            auth.user.membership.type === 'premium' ? 'from-yellow-400 via-amber-500 to-orange-600' :
-                            auth.user.membership.type === 'basic' ? 'from-blue-400 via-cyan-500 to-teal-600' :
+                            auth.user.membership.type === 'vip' ? 'from-emerald-600 via-teal-600 to-blue-600' :
+                            auth.user.membership.type === 'premium' ? 'from-teal-400 via-emerald-500 to-cyan-600' :
+                            auth.user.membership.type === 'basic' ? 'from-blue-400 via-teal-500 to-emerald-600' :
                             'from-gray-600 to-gray-700'
                         } p-8 shadow-2xl mb-8 animate-slide-up`}>
                             <div className="absolute inset-0 bg-white opacity-5"></div>

@@ -15,6 +15,7 @@ class Message extends Model
         'content',
         'type',
         'image_path',
+        'file_path',
         'is_read',
     ];
 

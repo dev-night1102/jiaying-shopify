@@ -85,10 +85,10 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
-    // Profile route (temporary redirect to dashboard)
-    Route::get('/profile', function () {
-        return redirect()->route('dashboard')->with('info', 'Profile settings coming soon!');
-    })->name('profile');
+    // Profile routes
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [App\Http\Controllers\ProfileController::class, 'destroy'])->name('profile.destroy');
     
     // Order routes
     Route::resource('orders', OrderController::class);
@@ -115,12 +115,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Notification routes
     Route::post('notifications/mark-as-read', function() {
         // Mark all notifications as read for current user
-        return response()->json(['success' => true]);
+        return back();
     })->name('notifications.mark-read');
     
     Route::post('notifications/clear-badge', function() {
         // Clear badge count for specific page
-        return response()->json(['success' => true]);
+        return back();
     })->name('notifications.clear-badge');
     
     // Search route

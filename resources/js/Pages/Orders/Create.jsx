@@ -49,7 +49,9 @@ export default function OrderCreate({ auth }) {
 
     const submit = (e) => {
         e.preventDefault();
-        post('/orders');
+        post('/orders', {
+            forceFormData: true,
+        });
     };
 
     return (
@@ -60,7 +62,7 @@ export default function OrderCreate({ auth }) {
             <div 
                 className="fixed inset-0 z-0"
                 style={{
-                    backgroundImage: `linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%), url('https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1920&h=1080&fit=crop&q=80')`,
+                    backgroundImage: `linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%), url('https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1920&h=1080&fit=crop&q=80')`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundAttachment: 'fixed'
@@ -71,15 +73,15 @@ export default function OrderCreate({ auth }) {
 
             {/* Floating Animation Elements */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-indigo-300 rounded-full opacity-10 animate-float"></div>
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-300 rounded-full opacity-10 animate-float" style={{animationDelay: '2s'}}></div>
-                <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-pink-300 rounded-full opacity-20 animate-pulse-slow"></div>
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-300 rounded-full opacity-10 animate-float"></div>
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-300 rounded-full opacity-10 animate-float" style={{animationDelay: '2s'}}></div>
+                <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-teal-300 rounded-full opacity-20 animate-pulse-slow"></div>
             </div>
 
             <div className="relative z-10 py-12 space-y-8 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-4xl mx-auto">
                     {/* Premium Header */}
-                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-10 shadow-2xl mb-8 animate-slide-down">
+                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 p-10 shadow-2xl mb-8 animate-slide-down">
                         <div className="absolute inset-0 bg-black opacity-10"></div>
                         <div className="absolute -top-24 -right-24 w-96 h-96 bg-white rounded-full opacity-10 animate-pulse-slow"></div>
                         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-white rounded-full opacity-10 animate-pulse-slow" style={{animationDelay: '1s'}}></div>
@@ -155,7 +157,7 @@ export default function OrderCreate({ auth }) {
                             {/* Product Link Section */}
                             <div className="space-y-2">
                                 <label className="flex items-center text-lg font-semibold text-gray-700 mb-3">
-                                    <LinkIcon className="w-5 h-5 mr-2 text-indigo-600" />
+                                    <LinkIcon className="w-5 h-5 mr-2 text-emerald-600" />
                                     {t('Product Link')}
                                     <span className="text-red-500 ml-1">*</span>
                                 </label>
@@ -167,7 +169,7 @@ export default function OrderCreate({ auth }) {
                                         className={`w-full px-4 py-4 border-2 rounded-xl text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-0 ${
                                             errors.product_link 
                                                 ? 'border-red-300 focus:border-red-500 bg-red-50' 
-                                                : 'border-gray-200 focus:border-indigo-500 hover:border-gray-300 bg-gray-50 focus:bg-white'
+                                                : 'border-gray-200 focus:border-emerald-500 hover:border-gray-300 bg-gray-50 focus:bg-white'
                                         }`}
                                         placeholder="https://example.com/product-page"
                                         required
@@ -185,14 +187,14 @@ export default function OrderCreate({ auth }) {
                             {/* Notes Section */}
                             <div className="space-y-2">
                                 <label className="flex items-center text-lg font-semibold text-gray-700 mb-3">
-                                    <MessageSquare className="w-5 h-5 mr-2 text-purple-600" />
+                                    <MessageSquare className="w-5 h-5 mr-2 text-teal-600" />
                                     {t('Special Instructions')} ({t('Optional')})
                                 </label>
                                 <textarea
                                     className={`w-full px-4 py-4 border-2 rounded-xl text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-0 resize-none ${
                                         errors.notes 
                                             ? 'border-red-300 focus:border-red-500 bg-red-50' 
-                                            : 'border-gray-200 focus:border-purple-500 hover:border-gray-300 bg-gray-50 focus:bg-white'
+                                            : 'border-gray-200 focus:border-teal-500 hover:border-gray-300 bg-gray-50 focus:bg-white'
                                     }`}
                                     rows={4}
                                     value={data.notes}
@@ -207,18 +209,18 @@ export default function OrderCreate({ auth }) {
                             {/* Image Upload Section */}
                             <div className="space-y-2">
                                 <label className="flex items-center text-lg font-semibold text-gray-700 mb-3">
-                                    <ImageIcon className="w-5 h-5 mr-2 text-pink-600" />
+                                    <ImageIcon className="w-5 h-5 mr-2 text-blue-600" />
                                     {t('Product Images')} ({t('Optional')})
                                 </label>
                                 
                                 <div className="relative">
-                                    <div className="flex justify-center px-8 py-12 border-2 border-dashed border-gray-300 rounded-2xl hover:border-indigo-400 hover:bg-indigo-50/50 transition-all duration-300 group cursor-pointer">
+                                    <div className="flex justify-center px-8 py-12 border-2 border-dashed border-gray-300 rounded-2xl hover:border-emerald-400 hover:bg-emerald-50/50 transition-all duration-300 group cursor-pointer">
                                         <div className="space-y-4 text-center">
-                                            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                                <Upload className="w-8 h-8 text-indigo-600" />
+                                            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                                <Upload className="w-8 h-8 text-emerald-600" />
                                             </div>
                                             <div>
-                                                <label className="relative cursor-pointer font-semibold text-indigo-600 hover:text-indigo-500 transition-colors duration-200">
+                                                <label className="relative cursor-pointer font-semibold text-emerald-600 hover:text-emerald-500 transition-colors duration-200">
                                                     <span className="text-lg">Click to upload images</span>
                                                     <input
                                                         type="file"
@@ -309,10 +311,10 @@ export default function OrderCreate({ auth }) {
                     </div>
 
                     {/* Help Section */}
-                    <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200 animate-fade-in">
+                    <div className="mt-8 p-6 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200 animate-fade-in">
                         <div className="flex items-start space-x-4">
-                            <div className="p-2 bg-blue-100 rounded-lg">
-                                <MessageSquare className="w-5 h-5 text-blue-600" />
+                            <div className="p-2 bg-emerald-100 rounded-lg">
+                                <MessageSquare className="w-5 h-5 text-emerald-600" />
                             </div>
                             <div>
                                 <h3 className="font-semibold text-gray-900 mb-2">Need Help?</h3>
@@ -321,7 +323,7 @@ export default function OrderCreate({ auth }) {
                                 </p>
                                 <a 
                                     href="/chats" 
-                                    className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors duration-200"
+                                    className="inline-flex items-center text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors duration-200"
                                 >
                                     Chat with Support
                                     <ArrowRight className="w-4 h-4 ml-1" />
