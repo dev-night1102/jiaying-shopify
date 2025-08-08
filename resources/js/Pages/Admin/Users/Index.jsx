@@ -303,7 +303,7 @@ export default function AdminUsersIndex({ auth, users = {}, filters = null }) {
                                         Showing {users.from || 0} to {users.to || 0} of {users.total || 0} users
                                     </div>
                                     <div className="flex space-x-2">
-                                        {users.links.map((link, index) => (
+                                        {Array.isArray(users.links) && users.links.map((link, index) => (
                                             <Link
                                                 key={index}
                                                 href={link.url || '#'}

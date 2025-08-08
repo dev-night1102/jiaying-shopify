@@ -404,6 +404,199 @@ export default function Welcome() {
                 </div>
             </section>
 
+            {/* Meet Jia Ying Introduction Section */}
+            <section className="py-20 bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        {/* Text Content */}
+                        <div className="space-y-8">
+                            <div>
+                                <h2 className="text-4xl font-black text-gray-900 mb-6">
+                                    Meet <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Jia Ying</span>
+                                </h2>
+                                <div className="w-16 h-1 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full mb-8"></div>
+                            </div>
+                            
+                            <div className="space-y-6">
+                                <p className="text-lg text-gray-700 leading-relaxed">
+                                    "Welcome to a world where your shopping dreams become reality. I'm Jia Ying, and I've dedicated my career to bridging the gap between global markets and your unique needs."
+                                </p>
+                                
+                                <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-emerald-100 shadow-sm">
+                                    <p className="text-gray-600 italic leading-relaxed">
+                                        "With over 8 years of experience in international procurement, I understand that every purchase is personal, every product has a story, and every customer deserves nothing but excellence."
+                                    </p>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="w-12 h-12 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full flex items-center justify-center">
+                                            <CheckCircle className="w-6 h-6 text-emerald-600" />
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-gray-900">Quality First</p>
+                                            <p className="text-sm text-gray-600">Hand-selected products</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center space-x-3">
+                                        <div className="w-12 h-12 bg-gradient-to-r from-teal-100 to-blue-100 rounded-full flex items-center justify-center">
+                                            <Users className="w-6 h-6 text-teal-600" />
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-gray-900">Personal Touch</p>
+                                            <p className="text-sm text-gray-600">Dedicated support</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <Link
+                                    href="/register"
+                                    className="group px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 text-center"
+                                >
+                                    <span className="flex items-center justify-center">
+                                        Start Your Journey
+                                        <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                                    </span>
+                                </Link>
+                                <button className="px-8 py-4 border-2 border-emerald-600 text-emerald-600 font-bold rounded-full hover:bg-emerald-50 transform hover:scale-105 transition-all duration-300">
+                                    Learn More About Us
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {/* Image Content */}
+                        <div className="relative">
+                            <div className="relative overflow-hidden rounded-3xl shadow-2xl bg-gradient-to-br from-white via-emerald-50 to-teal-50">
+                                {/* Modern Beautiful Woman Portrait */}
+                                <div className="relative p-8 aspect-[3/4] flex flex-col justify-end">
+                                    {/* Stunning Modern Woman Silhouette */}
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        {/* Hair */}
+                                        <div className="absolute top-12 w-48 h-56 bg-gradient-to-b from-amber-900 via-amber-800 to-amber-700 rounded-full" 
+                                             style={{
+                                                 clipPath: 'ellipse(120px 140px at center)',
+                                                 transform: 'translateY(-20px)'
+                                             }}>
+                                            {/* Hair highlights */}
+                                            <div className="absolute top-4 left-8 w-16 h-20 bg-gradient-to-br from-amber-600 to-amber-700 rounded-full opacity-60"></div>
+                                            <div className="absolute top-8 right-12 w-12 h-16 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full opacity-40"></div>
+                                        </div>
+                                        
+                                        {/* Face */}
+                                        <div className="absolute top-24 w-32 h-40 bg-gradient-to-b from-amber-100 via-peach-200 to-amber-200 rounded-full shadow-inner"
+                                             style={{backgroundColor: '#fef3e2'}}>
+                                            {/* Eyes */}
+                                            <div className="absolute top-12 left-6 w-4 h-3 bg-amber-900 rounded-full"></div>
+                                            <div className="absolute top-12 right-6 w-4 h-3 bg-amber-900 rounded-full"></div>
+                                            {/* Eye shine */}
+                                            <div className="absolute top-12 left-7 w-1.5 h-1.5 bg-white rounded-full"></div>
+                                            <div className="absolute top-12 right-7 w-1.5 h-1.5 bg-white rounded-full"></div>
+                                            
+                                            {/* Eyebrows */}
+                                            <div className="absolute top-10 left-6 w-5 h-1 bg-amber-800 rounded-full"></div>
+                                            <div className="absolute top-10 right-6 w-5 h-1 bg-amber-800 rounded-full"></div>
+                                            
+                                            {/* Nose */}
+                                            <div className="absolute top-16 left-1/2 transform -translate-x-1/2 w-2 h-4 bg-gradient-to-b from-transparent to-amber-300 rounded-full opacity-30"></div>
+                                            
+                                            {/* Lips */}
+                                            <div className="absolute top-20 left-1/2 transform -translate-x-1/2 w-6 h-2 bg-gradient-to-r from-rose-400 to-rose-500 rounded-full"></div>
+                                            <div className="absolute top-20 left-1/2 transform -translate-x-1/2 w-4 h-1 bg-rose-300 rounded-full"></div>
+                                        </div>
+                                        
+                                        {/* Neck */}
+                                        <div className="absolute top-56 w-16 h-12 bg-gradient-to-b from-amber-100 to-amber-200 rounded-t-full"
+                                             style={{backgroundColor: '#fef3e2'}}></div>
+                                        
+                                        {/* Professional Outfit */}
+                                        <div className="absolute top-64 w-40 h-32 bg-gradient-to-b from-emerald-600 via-emerald-700 to-emerald-800 rounded-t-3xl">
+                                            {/* Elegant neckline */}
+                                            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-8 bg-white rounded-t-full opacity-90"></div>
+                                            {/* Professional details */}
+                                            <div className="absolute top-4 left-4 w-2 h-2 bg-gold-400 rounded-full" style={{backgroundColor: '#fbbf24'}}></div>
+                                            <div className="absolute top-4 right-4 w-2 h-2 bg-gold-400 rounded-full" style={{backgroundColor: '#fbbf24'}}></div>
+                                        </div>
+                                        
+                                        {/* Welcoming Hand Gesture */}
+                                        <div className="absolute top-72 -right-8 w-12 h-16 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full transform rotate-12"
+                                             style={{backgroundColor: '#fef3e2'}}>
+                                            {/* Palm */}
+                                            <div className="absolute top-2 left-2 w-8 h-10 bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl"></div>
+                                            {/* Fingers */}
+                                            <div className="absolute -top-1 left-1 w-2 h-6 bg-gradient-to-b from-amber-100 to-amber-200 rounded-full transform -rotate-12"></div>
+                                            <div className="absolute -top-2 left-3 w-2 h-7 bg-gradient-to-b from-amber-100 to-amber-200 rounded-full transform -rotate-6"></div>
+                                            <div className="absolute -top-2 left-5 w-2 h-7 bg-gradient-to-b from-amber-100 to-amber-200 rounded-full"></div>
+                                            <div className="absolute -top-1 left-7 w-2 h-6 bg-gradient-to-b from-amber-100 to-amber-200 rounded-full transform rotate-6"></div>
+                                            {/* Thumb */}
+                                            <div className="absolute top-6 -left-1 w-2 h-5 bg-gradient-to-b from-amber-100 to-amber-200 rounded-full transform -rotate-45"></div>
+                                        </div>
+                                        
+                                        {/* Other Hand */}
+                                        <div className="absolute top-76 -left-6 w-10 h-14 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full transform -rotate-12"
+                                             style={{backgroundColor: '#fef3e2'}}>
+                                            <div className="absolute top-1 left-1 w-6 h-8 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Professional Name Badge */}
+                                    <div className="relative z-10 bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-emerald-100">
+                                        <div className="text-center">
+                                            <h3 className="text-xl font-bold bg-gradient-to-r from-emerald-700 to-teal-700 bg-clip-text text-transparent">
+                                                Jia Ying
+                                            </h3>
+                                            <p className="text-emerald-600 font-medium text-sm">Senior Shopping Consultant</p>
+                                            <div className="flex items-center justify-center mt-2 space-x-1">
+                                                <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                                                <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                                                <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                                                <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                                                <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                                            </div>
+                                            <p className="text-emerald-700 font-medium italic text-sm mt-2">
+                                                "Bringing your dreams to reality"
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Modern Decorative Elements */}
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-400/30 via-teal-400/20 to-transparent rounded-bl-full"></div>
+                                <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-teal-400/30 via-emerald-400/20 to-transparent rounded-tr-full"></div>
+                                
+                                {/* Floating Elements */}
+                                <div className="absolute top-8 left-8 w-3 h-3 bg-emerald-400 rounded-full animate-bounce" style={{animationDelay: '0.5s'}}></div>
+                                <div className="absolute top-16 right-12 w-2 h-2 bg-teal-400 rounded-full animate-bounce" style={{animationDelay: '1s'}}></div>
+                                <div className="absolute bottom-20 left-12 w-4 h-4 bg-emerald-300 rounded-full animate-bounce" style={{animationDelay: '1.5s'}}></div>
+                            </div>
+                            
+                            {/* Floating achievement badges */}
+                            <div className="absolute -top-8 -left-8 bg-white rounded-2xl shadow-xl p-4 transform rotate-12 hover:rotate-6 transition-transform duration-300">
+                                <div className="flex items-center space-x-2">
+                                    <Star className="w-6 h-6 text-yellow-400 fill-current" />
+                                    <div>
+                                        <p className="font-bold text-gray-900 text-sm">4.9/5</p>
+                                        <p className="text-xs text-gray-600">Customer Rating</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="absolute -bottom-8 -right-8 bg-white rounded-2xl shadow-xl p-4 transform -rotate-12 hover:-rotate-6 transition-transform duration-300">
+                                <div className="flex items-center space-x-2">
+                                    <Globe className="w-6 h-6 text-emerald-600" />
+                                    <div>
+                                        <p className="font-bold text-gray-900 text-sm">50K+</p>
+                                        <p className="text-xs text-gray-600">Happy Customers</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* Testimonials */}
             <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

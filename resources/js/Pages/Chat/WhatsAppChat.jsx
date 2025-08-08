@@ -335,17 +335,36 @@ export default function WhatsAppChat({ auth, chat, messages = [], isAdmin = fals
                                         {(message.type === 'file' || message.type === 'image') && message.image_path && (
                                             <div className="mb-2">
                                                 {message.image_path.match(/\.(jpg|jpeg|png|gif)$/i) ? (
-                                                    <img 
-                                                        src={`/storage/${message.image_path}`} 
-                                                        alt="Shared image" 
-                                                        className="max-w-full rounded-lg cursor-pointer"
-                                                        onClick={() => window.open(`/storage/${message.image_path}`, '_blank')}
-                                                    />
+                                                    <div className="relative group">
+                                                        <img 
+                                                            src={`/storage/${message.image_path}`} 
+                                                            alt="Shared image" 
+                                                            className="max-w-full max-h-64 rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                                                            onClick={() => window.open(`/storage/${message.image_path}`, '_blank')}
+                                                        />
+                                                        {/* Download button overlay */}
+                                                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <a 
+                                                                href={`/storage/${message.image_path}`} 
+                                                                download
+                                                                className="p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+                                                                onClick={(e) => e.stopPropagation()}
+                                                            >
+                                                                <Download className="w-4 h-4" />
+                                                            </a>
+                                                        </div>
+                                                        {/* View full size icon */}
+                                                        <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <div className="p-2 bg-black/50 text-white rounded-full">
+                                                                <Eye className="w-4 h-4" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 ) : (
-                                                    <div className="flex items-center space-x-2 p-2 bg-black/10 rounded-lg">
+                                                    <div className="flex items-center space-x-2 p-3 bg-black/10 rounded-lg hover:bg-black/15 transition-colors">
                                                         {getFileIcon(message.image_path)}
                                                         <div className="flex-1 min-w-0">
-                                                            <p className="text-sm truncate">
+                                                            <p className="text-sm font-medium truncate">
                                                                 {message.image_path.split('/').pop()}
                                                             </p>
                                                             <p className="text-xs opacity-70">Document</p>
@@ -353,7 +372,8 @@ export default function WhatsAppChat({ auth, chat, messages = [], isAdmin = fals
                                                         <a 
                                                             href={`/storage/${message.image_path}`} 
                                                             download
-                                                            className="p-1 hover:bg-black/10 rounded"
+                                                            className="p-2 hover:bg-black/10 rounded-full transition-colors"
+                                                            title="Download file"
                                                         >
                                                             <Download className="w-4 h-4" />
                                                         </a>
