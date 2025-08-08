@@ -18,10 +18,16 @@ import {
     Users
 } from 'lucide-react';
 
-export default function AdminUsersIndex({ auth, users = {}, filters = {} }) {
+export default function AdminUsersIndex({ auth, users = {}, filters = null }) {
     const { t } = useTranslation();
     
-    const userData = users?.data || [];
+    // Comprehensive error handling and data validation
+    if (!auth?.user) {
+        return <div className="p-8">Authentication error. Please refresh the page.</div>;
+    }
+    
+    // Safe data extraction with comprehensive null checks
+    const userData = Array.isArray(users?.data) ? users.data : [];
     const safeFilters = filters || {};
     const [search, setSearch] = useState(safeFilters.search || '');
     const [roleFilter, setRoleFilter] = useState(safeFilters.role || '');
@@ -143,7 +149,7 @@ export default function AdminUsersIndex({ auth, users = {}, filters = {} }) {
                             <h3 className="text-lg font-semibold text-gray-900">Users</h3>
                         </div>
 
-                        {userData.length > 0 ? (
+                        {Array.isArray(userData) && userData.length > 0 ? (
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
@@ -290,11 +296,11 @@ export default function AdminUsersIndex({ auth, users = {}, filters = {} }) {
                         )}
                         
                         {/* Pagination */}
-                        {userData.length > 0 && users?.links && (
+                        {Array.isArray(userData) && userData.length > 0 && users?.links && (
                             <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
                                 <div className="flex items-center justify-between">
                                     <div className="text-sm text-gray-700">
-                                        Showing {users.from} to {users.to} of {users.total} users
+                                        Showing {users.from || 0} to {users.to || 0} of {users.total || 0} users
                                     </div>
                                     <div className="flex space-x-2">
                                         {users.links.map((link, index) => (

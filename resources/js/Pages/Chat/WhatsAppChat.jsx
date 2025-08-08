@@ -36,14 +36,12 @@ export default function WhatsAppChat({ auth, chat, messages = [], isAdmin = fals
     // Chat partner info
     const partner = isAdmin ? chat.user : { name: 'Support Team', role: 'admin' };
 
-    // Auto-scroll to bottom
+    // Optional scroll to bottom (removed automatic scrolling)
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
+    // Removed automatic scroll on message changes
 
     // Real-time polling
     useEffect(() => {

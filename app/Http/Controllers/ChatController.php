@@ -133,7 +133,7 @@ class ChatController extends Controller
     {
         $request->validate([
             'content' => 'nullable|string|max:1000',
-            'type' => 'in:text,file',
+            'type' => 'nullable|in:text,file',
             'files.*' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,pdf,doc,docx',
         ]);
 
@@ -159,17 +159,25 @@ class ChatController extends Controller
 
         // Only create message if there's content or file
         if ($request->filled('content') || $filePath) {
-            // Create message - use image_path for now since that's what the database has
+            // Determine message type - use 'image' for files since 'file' might not exist in enum
+            $messageType = 'text';
+            if ($filePath) {
+                // Check if it's an image file
+                $isImage = preg_match('/\.(jpg|jpeg|png|gif)$/i', $filePath);
+                $messageType = $isImage ? 'image' : 'text'; // Fallback to text if file type not supported
+            }
+            
+            // Create message - use image_path since that's what exists in DB
             $message = Message::create([
                 'chat_id' => $chat->id,
                 'sender_id' => $user->id,
                 'content' => $request->content ?? '',
-                'type' => $filePath ? 'file' : 'text',
-                'image_path' => $filePath, // Using image_path since that's what exists in DB
+                'type' => $messageType,
+                'image_path' => $filePath,
                 'is_read' => false,
             ]);
         } else {
-            return response()->json(['error' => 'Message content or file required'], 400);
+            return back()->withErrors(['message' => 'Message content or file required']);
         }
 
         // Update chat last message time
