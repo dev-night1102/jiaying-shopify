@@ -365,46 +365,7 @@ export default function Welcome() {
                 </div>
             </section>
 
-            {/* How It Works */}
-            <section id="how-it-works" className="py-20 bg-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl font-black text-gray-900 mb-4">How It Works</h2>
-                        <p className="text-xl text-gray-600">Four simple steps to global shopping success</p>
-                    </div>
-
-                    <div className="relative">
-                        {/* Connection Line */}
-                        <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-200 via-teal-200 to-blue-200"></div>
-                        
-                        <div className="grid md:grid-cols-4 gap-8 relative">
-                            {howItWorks.map((step, index) => (
-                                <div
-                                    key={index}
-                                    data-animate={`step-${index}`}
-                                    className={`text-center transform transition-all duration-700 ${
-                                        isVisible[`step-${index}`] ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-                                    }`}
-                                    style={{ transitionDelay: `${index * 150}ms` }}
-                                >
-                                    <div className="relative">
-                                        <div className={`w-20 h-20 mx-auto bg-gradient-to-br ${step.color} rounded-full flex items-center justify-center text-white shadow-lg relative z-10`}>
-                                            <step.icon className="w-10 h-10" />
-                                        </div>
-                                        <div className="absolute -top-2 -right-2 text-5xl font-black text-gray-100 z-0">
-                                            {step.step}
-                                        </div>
-                                    </div>
-                                    <h3 className="text-xl font-bold text-gray-900 mt-6 mb-3">{step.title}</h3>
-                                    <p className="text-gray-600">{step.description}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Meet Jia Ying Introduction Section */}
+            {/* Meet Jia Ying Introduction Section - Beautiful Real Chinese Girl */}
             <section className="py-20 bg-gradient-to-br from-emerald-50 via-white to-teal-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -467,82 +428,30 @@ export default function Welcome() {
                             </div>
                         </div>
                         
-                        {/* Image Content */}
+                        {/* Image Content - Beautiful Real Chinese Girl */}
                         <div className="relative">
                             <div className="relative overflow-hidden rounded-3xl shadow-2xl bg-gradient-to-br from-white via-emerald-50 to-teal-50">
-                                {/* Modern Beautiful Woman Portrait */}
-                                <div className="relative p-8 aspect-[3/4] flex flex-col justify-end">
-                                    {/* Stunning Modern Woman Silhouette */}
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        {/* Hair */}
-                                        <div className="absolute top-12 w-48 h-56 bg-gradient-to-b from-amber-900 via-amber-800 to-amber-700 rounded-full" 
-                                             style={{
-                                                 clipPath: 'ellipse(120px 140px at center)',
-                                                 transform: 'translateY(-20px)'
-                                             }}>
-                                            {/* Hair highlights */}
-                                            <div className="absolute top-4 left-8 w-16 h-20 bg-gradient-to-br from-amber-600 to-amber-700 rounded-full opacity-60"></div>
-                                            <div className="absolute top-8 right-12 w-12 h-16 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full opacity-40"></div>
-                                        </div>
-                                        
-                                        {/* Face */}
-                                        <div className="absolute top-24 w-32 h-40 bg-gradient-to-b from-amber-100 via-peach-200 to-amber-200 rounded-full shadow-inner"
-                                             style={{backgroundColor: '#fef3e2'}}>
-                                            {/* Eyes */}
-                                            <div className="absolute top-12 left-6 w-4 h-3 bg-amber-900 rounded-full"></div>
-                                            <div className="absolute top-12 right-6 w-4 h-3 bg-amber-900 rounded-full"></div>
-                                            {/* Eye shine */}
-                                            <div className="absolute top-12 left-7 w-1.5 h-1.5 bg-white rounded-full"></div>
-                                            <div className="absolute top-12 right-7 w-1.5 h-1.5 bg-white rounded-full"></div>
-                                            
-                                            {/* Eyebrows */}
-                                            <div className="absolute top-10 left-6 w-5 h-1 bg-amber-800 rounded-full"></div>
-                                            <div className="absolute top-10 right-6 w-5 h-1 bg-amber-800 rounded-full"></div>
-                                            
-                                            {/* Nose */}
-                                            <div className="absolute top-16 left-1/2 transform -translate-x-1/2 w-2 h-4 bg-gradient-to-b from-transparent to-amber-300 rounded-full opacity-30"></div>
-                                            
-                                            {/* Lips */}
-                                            <div className="absolute top-20 left-1/2 transform -translate-x-1/2 w-6 h-2 bg-gradient-to-r from-rose-400 to-rose-500 rounded-full"></div>
-                                            <div className="absolute top-20 left-1/2 transform -translate-x-1/2 w-4 h-1 bg-rose-300 rounded-full"></div>
-                                        </div>
-                                        
-                                        {/* Neck */}
-                                        <div className="absolute top-56 w-16 h-12 bg-gradient-to-b from-amber-100 to-amber-200 rounded-t-full"
-                                             style={{backgroundColor: '#fef3e2'}}></div>
-                                        
-                                        {/* Professional Outfit */}
-                                        <div className="absolute top-64 w-40 h-32 bg-gradient-to-b from-emerald-600 via-emerald-700 to-emerald-800 rounded-t-3xl">
-                                            {/* Elegant neckline */}
-                                            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-16 h-8 bg-white rounded-t-full opacity-90"></div>
-                                            {/* Professional details */}
-                                            <div className="absolute top-4 left-4 w-2 h-2 bg-gold-400 rounded-full" style={{backgroundColor: '#fbbf24'}}></div>
-                                            <div className="absolute top-4 right-4 w-2 h-2 bg-gold-400 rounded-full" style={{backgroundColor: '#fbbf24'}}></div>
-                                        </div>
-                                        
-                                        {/* Welcoming Hand Gesture */}
-                                        <div className="absolute top-72 -right-8 w-12 h-16 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full transform rotate-12"
-                                             style={{backgroundColor: '#fef3e2'}}>
-                                            {/* Palm */}
-                                            <div className="absolute top-2 left-2 w-8 h-10 bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl"></div>
-                                            {/* Fingers */}
-                                            <div className="absolute -top-1 left-1 w-2 h-6 bg-gradient-to-b from-amber-100 to-amber-200 rounded-full transform -rotate-12"></div>
-                                            <div className="absolute -top-2 left-3 w-2 h-7 bg-gradient-to-b from-amber-100 to-amber-200 rounded-full transform -rotate-6"></div>
-                                            <div className="absolute -top-2 left-5 w-2 h-7 bg-gradient-to-b from-amber-100 to-amber-200 rounded-full"></div>
-                                            <div className="absolute -top-1 left-7 w-2 h-6 bg-gradient-to-b from-amber-100 to-amber-200 rounded-full transform rotate-6"></div>
-                                            {/* Thumb */}
-                                            <div className="absolute top-6 -left-1 w-2 h-5 bg-gradient-to-b from-amber-100 to-amber-200 rounded-full transform -rotate-45"></div>
-                                        </div>
-                                        
-                                        {/* Other Hand */}
-                                        <div className="absolute top-76 -left-6 w-10 h-14 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full transform -rotate-12"
-                                             style={{backgroundColor: '#fef3e2'}}>
-                                            <div className="absolute top-1 left-1 w-6 h-8 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl"></div>
-                                        </div>
-                                    </div>
+                                {/* Real Beautiful Chinese Girl Image */}
+                                <div className="relative aspect-[3/4]">
+                                    {/* Background for image */}
+                                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-100 via-white to-teal-100"></div>
+                                    
+                                    {/* Real beautiful Chinese girl photo - Using professional model image */}
+                                    <img 
+                                        src="https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                                        alt="Jia Ying - Beautiful Chinese Shopping Consultant"
+                                        className="absolute inset-0 w-full h-full object-cover object-center"
+                                        onError={(e) => {
+                                            // Fallback to second beautiful Chinese girl image if first fails
+                                            e.target.src = "https://images.unsplash.com/photo-1581403341630-a6e0b9d2d257?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80";
+                                        }}
+                                    />
+                                    
+                                    {/* Overlay gradient for better text readability */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                                     
                                     {/* Professional Name Badge */}
-                                    <div className="relative z-10 bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-emerald-100">
+                                    <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-xl border border-emerald-100">
                                         <div className="text-center">
                                             <h3 className="text-xl font-bold bg-gradient-to-r from-emerald-700 to-teal-700 bg-clip-text text-transparent">
                                                 Jia Ying
@@ -563,13 +472,13 @@ export default function Welcome() {
                                 </div>
                                 
                                 {/* Modern Decorative Elements */}
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-400/30 via-teal-400/20 to-transparent rounded-bl-full"></div>
-                                <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-teal-400/30 via-emerald-400/20 to-transparent rounded-tr-full"></div>
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-400/20 via-teal-400/10 to-transparent rounded-bl-full"></div>
+                                <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-teal-400/20 via-emerald-400/10 to-transparent rounded-tr-full"></div>
                                 
                                 {/* Floating Elements */}
                                 <div className="absolute top-8 left-8 w-3 h-3 bg-emerald-400 rounded-full animate-bounce" style={{animationDelay: '0.5s'}}></div>
                                 <div className="absolute top-16 right-12 w-2 h-2 bg-teal-400 rounded-full animate-bounce" style={{animationDelay: '1s'}}></div>
-                                <div className="absolute bottom-20 left-12 w-4 h-4 bg-emerald-300 rounded-full animate-bounce" style={{animationDelay: '1.5s'}}></div>
+                                <div className="absolute bottom-32 left-12 w-4 h-4 bg-emerald-300 rounded-full animate-bounce" style={{animationDelay: '1.5s'}}></div>
                             </div>
                             
                             {/* Floating achievement badges */}
@@ -592,6 +501,45 @@ export default function Welcome() {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* How It Works */}
+            <section id="how-it-works" className="py-20 bg-white">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-4xl font-black text-gray-900 mb-4">How It Works</h2>
+                        <p className="text-xl text-gray-600">Four simple steps to global shopping success</p>
+                    </div>
+
+                    <div className="relative">
+                        {/* Connection Line */}
+                        <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-200 via-teal-200 to-blue-200"></div>
+                        
+                        <div className="grid md:grid-cols-4 gap-8 relative">
+                            {howItWorks.map((step, index) => (
+                                <div
+                                    key={index}
+                                    data-animate={`step-${index}`}
+                                    className={`text-center transform transition-all duration-700 ${
+                                        isVisible[`step-${index}`] ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                                    }`}
+                                    style={{ transitionDelay: `${index * 150}ms` }}
+                                >
+                                    <div className="relative">
+                                        <div className={`w-20 h-20 mx-auto bg-gradient-to-br ${step.color} rounded-full flex items-center justify-center text-white shadow-lg relative z-10`}>
+                                            <step.icon className="w-10 h-10" />
+                                        </div>
+                                        <div className="absolute -top-2 -right-2 text-5xl font-black text-gray-100 z-0">
+                                            {step.step}
+                                        </div>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-900 mt-6 mb-3">{step.title}</h3>
+                                    <p className="text-gray-600">{step.description}</p>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

@@ -113,10 +113,10 @@ export default function AuthenticatedLayout({ user, children }) {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Clear notification badges when visiting pages
+    // Clear notification badges when visiting pages or clicking links
     useEffect(() => {
         const currentPath = window.location.pathname;
-        if (currentPath === '/orders' || currentPath === '/chats' || currentPath === '/admin/orders') {
+        if (currentPath.includes('/orders') || currentPath.includes('/chats') || currentPath.includes('/admin/orders') || currentPath.includes('/admin/chats')) {
             // Clear relevant badges by making a request
             router.post('/notifications/clear-badge', { 
                 page: currentPath 
@@ -127,6 +127,19 @@ export default function AuthenticatedLayout({ user, children }) {
             });
         }
     }, [window.location.pathname]);
+
+    // Handle badge clearing when clicking navigation items
+    const handleNavClick = (href, badgeType) => {
+        if (badgeType) {
+            router.post('/notifications/clear-badge', { 
+                type: badgeType 
+            }, { 
+                preserveState: true,
+                preserveScroll: true,
+                onlyKeys: []
+            });
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50 flex flex-col">
@@ -160,6 +173,7 @@ export default function AuthenticatedLayout({ user, children }) {
                                     key={item.name}
                                     href={item.href}
                                     className="group relative px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-200 flex items-center space-x-2"
+                                    onClick={() => handleNavClick(item.href, item.badge > 0 ? (item.href.includes('orders') ? 'orders' : 'chats') : null)}
                                 >
                                     <item.icon className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
                                     <span>{item.name}</span>
@@ -495,7 +509,10 @@ export default function AuthenticatedLayout({ user, children }) {
                                     key={item.name}
                                     href={item.href}
                                     className="flex items-center justify-between px-3 py-2 text-base font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200"
-                                    onClick={() => setMobileMenuOpen(false)}
+                                    onClick={() => {
+                                        setMobileMenuOpen(false);
+                                        handleNavClick(item.href, item.badge > 0 ? (item.href.includes('orders') ? 'orders' : 'chats') : null);
+                                    }}
                                 >
                                     <div className="flex items-center space-x-3">
                                         <item.icon className="w-5 h-5" />

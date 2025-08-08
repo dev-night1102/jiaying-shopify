@@ -307,11 +307,11 @@ export default function AdminUsersIndex({ auth, users = {}, filters = null }) {
                                             <Link
                                                 key={index}
                                                 href={link.url || '#'}
-                                                className={`px-3 py-2 text-sm rounded-md transition-colors ${
+                                                className={`px-4 py-2 text-sm rounded-full font-medium transition-all duration-300 ${
                                                     link.active
-                                                        ? 'bg-emerald-600 text-white'
+                                                        ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg transform scale-105'
                                                         : link.url
-                                                        ? 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                                        ? 'bg-white text-emerald-600 border border-emerald-200 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:border-emerald-300 hover:shadow-md transform hover:scale-105'
                                                         : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                                 }`}
                                                 dangerouslySetInnerHTML={{ __html: link.label }}

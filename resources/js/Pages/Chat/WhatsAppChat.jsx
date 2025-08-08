@@ -331,48 +331,80 @@ export default function WhatsAppChat({ auth, chat, messages = [], isAdmin = fals
                                             : 'bg-white text-gray-800 rounded-bl-md'
                                         }
                                     `}>
-                                        {/* Message Content */}
+                                        {/* WhatsApp-style File/Image Display */}
                                         {(message.type === 'file' || message.type === 'image') && message.image_path && (
-                                            <div className="mb-2">
-                                                {message.image_path.match(/\.(jpg|jpeg|png|gif)$/i) ? (
-                                                    <div className="relative group">
+                                            <div className="mb-2 max-w-sm">
+                                                {message.image_path.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                                                    /* Image Message */
+                                                    <div className="relative group rounded-lg overflow-hidden">
                                                         <img 
                                                             src={`/storage/${message.image_path}`} 
                                                             alt="Shared image" 
-                                                            className="max-w-full max-h-64 rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                                                            className="w-full max-w-xs rounded-lg cursor-pointer transition-all duration-200 hover:brightness-90"
                                                             onClick={() => window.open(`/storage/${message.image_path}`, '_blank')}
+                                                            style={{maxHeight: '300px', objectFit: 'cover'}}
+                                                            onError={(e) => {
+                                                                console.error('Image failed to load:', e.target.src);
+                                                                e.target.style.display = 'none';
+                                                                e.target.nextElementSibling.style.display = 'flex';
+                                                            }}
                                                         />
-                                                        {/* Download button overlay */}
-                                                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        {/* Fallback for failed images */}
+                                                        <div className="hidden w-full max-w-xs h-40 bg-gray-200 rounded-lg flex-col items-center justify-center">
+                                                            <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
+                                                            <p className="text-xs text-gray-500">Image failed to load</p>
                                                             <a 
                                                                 href={`/storage/${message.image_path}`} 
                                                                 download
-                                                                className="p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
-                                                                onClick={(e) => e.stopPropagation()}
+                                                                className="mt-2 px-3 py-1 bg-gray-300 text-gray-700 rounded text-xs hover:bg-gray-400"
                                                             >
-                                                                <Download className="w-4 h-4" />
+                                                                Download
                                                             </a>
                                                         </div>
-                                                        {/* View full size icon */}
-                                                        <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                            <div className="p-2 bg-black/50 text-white rounded-full">
-                                                                <Eye className="w-4 h-4" />
+                                                        
+                                                        {/* WhatsApp-style overlay buttons */}
+                                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-200 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                                            <div className="flex space-x-2">
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        window.open(`/storage/${message.image_path}`, '_blank');
+                                                                    }}
+                                                                    className="p-2 bg-white/90 text-gray-700 rounded-full shadow-lg hover:bg-white transition-colors"
+                                                                    title="View full size"
+                                                                >
+                                                                    <Eye className="w-4 h-4" />
+                                                                </button>
+                                                                <a 
+                                                                    href={`/storage/${message.image_path}`} 
+                                                                    download
+                                                                    className="p-2 bg-white/90 text-gray-700 rounded-full shadow-lg hover:bg-white transition-colors"
+                                                                    title="Download image"
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                >
+                                                                    <Download className="w-4 h-4" />
+                                                                </a>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    <div className="flex items-center space-x-2 p-3 bg-black/10 rounded-lg hover:bg-black/15 transition-colors">
-                                                        {getFileIcon(message.image_path)}
+                                                    /* File Message */
+                                                    <div className="flex items-center space-x-3 p-3 bg-white/50 rounded-lg border border-gray-200 hover:bg-white/70 transition-colors max-w-xs">
+                                                        <div className="flex-shrink-0">
+                                                            {getFileIcon(message.image_path)}
+                                                        </div>
                                                         <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-medium truncate">
+                                                            <p className="text-sm font-medium text-gray-900 truncate">
                                                                 {message.image_path.split('/').pop()}
                                                             </p>
-                                                            <p className="text-xs opacity-70">Document</p>
+                                                            <p className="text-xs text-gray-500">
+                                                                {message.image_path.split('.').pop().toUpperCase()} File
+                                                            </p>
                                                         </div>
                                                         <a 
                                                             href={`/storage/${message.image_path}`} 
                                                             download
-                                                            className="p-2 hover:bg-black/10 rounded-full transition-colors"
+                                                            className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors"
                                                             title="Download file"
                                                         >
                                                             <Download className="w-4 h-4" />
