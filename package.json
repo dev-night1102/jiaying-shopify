@@ -18,9 +18,12 @@
         "@inertiajs/react": "^2.0.17",
         "@vitejs/plugin-react": "^4.7.0",
         "emoji-picker-react": "^4.13.2",
+        "laravel-echo": "^2.2.0",
         "lucide-react": "^0.534.0",
+        "pusher-js": "^8.4.0",
         "react": "^19.1.1",
         "react-dom": "^19.1.1",
-        "react-dropzone": "^14.3.8"
+        "react-dropzone": "^14.3.8",
+        "ws": "^8.18.3"
     }
 }

@@ -11,6 +11,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\ShopifyController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -40,6 +41,36 @@ Route::get('/health', function () {
             'timestamp' => now(),
             'database' => 'disconnected',
             'error' => $e->getMessage()
+        ], 500);
+    }
+});
+
+// Test broadcasting endpoint
+Route::get('/test-broadcast', function () {
+    try {
+        // Test broadcasting without database
+        $testData = [
+            'message' => 'Test broadcast from API',
+            'timestamp' => now()->toISOString(),
+            'type' => 'test-message'
+        ];
+
+        // Broadcast to test channel
+        broadcast(new \Illuminate\Broadcasting\Broadcasters\PusherBroadcaster(
+            app()->make('pusher'), 
+            ['test-channel']
+        ));
+
+        return response()->json([
+            'status' => 'broadcast_sent',
+            'data' => $testData,
+            'timestamp' => now()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'broadcast_failed',
+            'error' => $e->getMessage(),
+            'timestamp' => now()
         ], 500);
     }
 });
@@ -153,4 +184,17 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->as('admin.')-
     
     Route::resource('users', Admin\UserController::class)->only(['index', 'show']);
     Route::post('users/{user}/balance', [Admin\UserController::class, 'updateBalance'])->name('users.update-balance');
+    
+    // Shopify webhook management
+    Route::post('shopify/register-webhooks', [ShopifyController::class, 'registerWebhooks'])->name('shopify.register-webhooks');
 });
+
+// Shopify webhook routes (public, no auth middleware)
+Route::prefix('webhooks/shopify')->group(function () {
+    Route::post('/', [ShopifyController::class, 'handleWebhook'])->name('shopify.webhook');
+});
+
+// Test page for Shopify integration
+Route::get('/shopify-test', function () {
+    return view('shopify-test');
+})->name('shopify.test');

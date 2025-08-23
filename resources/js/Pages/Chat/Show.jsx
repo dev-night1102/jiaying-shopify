@@ -1,8 +1,8 @@
-import WhatsAppChat from './WhatsAppChat';
+import RealtimeChat from './RealtimeChat';
 
 export default function ChatShow({ auth, chat, messages = [], isAdmin = false }) {
     return (
-        <WhatsAppChat 
+        <RealtimeChat 
             auth={auth}
             chat={chat}
             messages={messages}

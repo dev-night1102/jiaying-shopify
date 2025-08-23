@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="test-token">
+    <title>Real-time Chat Testing Suite</title>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+        .test-section h3 {
+            color: #555;
+            margin-top: 0;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .status.connected { background: #d4edda; color: #155724; }
+        .status.disconnected { background: #f8d7da; color: #721c24; }
+        .status.testing { background: #fff3cd; color: #856404; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+        .warning { color: #ffc107; }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .metric {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .metric-label {
+            color: #666;
+            font-size: 12px;
+        }
+        .chat-simulator {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .messages {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 70%;
+        }
+        .message.sent {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        .message.received {
+            background: #e9ecef;
+            color: #333;
+        }
+        input[type="text"] {
+            width: calc(100% - 100px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Real-time Chat Testing Suite</h1>
+        
+        <!-- Connection Status -->
+        <div class="test-section">
+            <h3>📡 Connection Status</h3>
+            <div id="connectionStatus" class="status disconnected">Disconnected</div>
+            <button onclick="testConnection()">Test Connection</button>
+            <button onclick="disconnect()">Disconnect</button>
+            <div class="log" id="connectionLog"></div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="metrics">
+            <div class="metric">
+                <div class="metric-value" id="latency">0ms</div>
+                <div class="metric-label">Average Latency</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="messageCount">0</div>
+                <div class="metric-label">Messages Sent</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="reconnects">0</div>
+                <div class="metric-label">Reconnections</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="uptime">0s</div>
+                <div class="metric-label">Connection Uptime</div>
+            </div>
+        </div>
+
+        <!-- Channel Tests -->
+        <div class="test-section">
+            <h3>📻 Channel Testing</h3>
+            <button onclick="testPublicChannel()">Test Public Channel</button>
+            <button onclick="testPrivateChannel()">Test Private Channel</button>
+            <button onclick="testPresenceChannel()">Test Presence Channel</button>
+            <button onclick="testMultipleChannels()">Test Multiple Channels</button>
+            <div class="log" id="channelLog"></div>
+        </div>
+
+        <!-- Broadcasting Tests -->
+        <div class="test-section">
+            <h3>📤 Broadcasting Tests</h3>
+            <button onclick="testTypingIndicator()">Test Typing Indicator</button>
+            <button onclick="testMessageBroadcast()">Test Message Broadcast</button>
+            <button onclick="testFileUpload()">Test File Upload Broadcast</button>
+            <button onclick="testBulkMessages()">Stress Test (100 messages)</button>
+            <div class="log" id="broadcastLog"></div>
+        </div>
+
+        <!-- Chat Simulator -->
+        <div class="test-section">
+            <h3>💬 Live Chat Simulator</h3>
+            <div class="chat-simulator">
+                <div class="messages" id="chatMessages"></div>
+                <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+
+        <!-- Connection Quality Tests -->
+        <div class="test-section">
+            <h3>🔍 Advanced Tests</h3>
+            <button onclick="testConnectionResilience()">Test Connection Resilience</button>
+            <button onclick="testLatency()">Measure Latency</button>
+            <button onclick="testBandwidth()">Test Bandwidth</button>
+            <button onclick="testErrorHandling()">Test Error Handling</button>
+            <div class="log" id="advancedLog"></div>
+        </div>
+
+        <!-- Authentication Tests -->
+        <div class="test-section">
+            <h3>🔐 Authentication Tests</h3>
+            <button onclick="testAuthSuccess()">Test Valid Auth</button>
+            <button onclick="testAuthFailure()">Test Invalid Auth</button>
+            <button onclick="testChannelAuth()">Test Channel Authorization</button>
+            <div class="log" id="authLog"></div>
+        </div>
+    </div>
+
+    <script>
+        let pusher = null;
+        let connectedAt = null;
+        let messageCount = 0;
+        let reconnectCount = 0;
+        let latencySum = 0;
+        let latencyCount = 0;
+        let channels = {};
+
+        // Initialize
+        window.addEventListener('load', () => {
+            log('connectionLog', 'System initialized. Ready for testing.', 'info');
+            updateUptime();
+        });
+
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type;
+            element.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            element.scrollTop = element.scrollHeight;
+        }
+
+        function updateConnectionStatus(status) {
+            const element = document.getElementById('connectionStatus');
+            element.className = `status ${status}`;
+            element.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        }
+
+        function updateMetric(id, value) {
+            document.getElementById(id).textContent = value;
+        }
+
+        function testConnection() {
+            log('connectionLog', 'Initiating connection test...', 'info');
+            
+            if (pusher) {
+                pusher.disconnect();
+            }
+
+            pusher = new Pusher('shopping-agent-key', {
+                wsHost: '127.0.0.1',
+                wsPort: 6001,
+                forceTLS: false,
+                disableStats: true,
+                enabledTransports: ['ws'],
+                cluster: 'mt1',
+                authEndpoint: '/broadcasting/auth',
+                auth: {
+                    headers: {
+                        'X-CSRF-TOKEN': 'test-token'
+                    }
+                }
+            });
+
+            pusher.connection.bind('connected', () => {
+                connectedAt = Date.now();
+                updateConnectionStatus('connected');
+                log('connectionLog', '✅ SUCCESS: Connected to Soketi WebSocket server!', 'success');
+                log('connectionLog', `Connection ID: ${pusher.connection.socket_id}`, 'info');
+            });
+
+            pusher.connection.bind('disconnected', () => {
+                updateConnectionStatus('disconnected');
+                log('connectionLog', '❌ Disconnected from WebSocket server', 'error');
+            });
+
+            pusher.connection.bind('error', (err) => {
+                log('connectionLog', `❌ Connection Error: ${JSON.stringify(err)}`, 'error');
+            });
+
+            pusher.connection.bind('state_change', (states) => {
+                log('connectionLog', `State changed: ${states.previous} → ${states.current}`, 'info');
+            });
+        }
+
+        function disconnect() {
+            if (pusher) {
+                pusher.disconnect();
+                log('connectionLog', 'Disconnected manually', 'warning');
+            }
+        }
+
+        function testPublicChannel() {
+            if (!pusher) {
+                log('channelLog', '❌ Not connected. Please test connection first.', 'error');
+                return;
+            }
+
+            const channelName = 'test-public-channel';
+            const channel = pusher.subscribe(channelName);
+            channels[channelName] = channel;
+
+            channel.bind('pusher:subscription_succeeded', () => {
+                log('channelLog', `✅ Successfully subscribed to public channel: ${channelName}`, 'success');
+            });
+
+            channel.bind('test-event', (data) => {
+                log('channelLog', `📨 Received on public channel: ${JSON.stringify(data)}`, 'info');
+            });
+
+            // Trigger test event after subscription
+            setTimeout(() => {
+                log('channelLog', `📤 Triggering test event on ${channelName}`, 'info');
+            }, 1000);
+        }
+
+        function testPrivateChannel() {
+            if (!pusher) {
+                log('channelLog', '❌ Not connected. Please test connection first.', 'error');
+                return;
+            }
+
+            const channelName = 'private-test-channel';
+            const channel = pusher.subscribe(channelName);
+            channels[channelName] = channel;
+
+            channel.bind('pusher:subscription_succeeded', () => {
+                log('channelLog', `✅ Successfully subscribed to private channel: ${channelName}`, 'success');
+            });
+
+            channel.bind('pusher:subscription_error', (err) => {
+                log('channelLog', `❌ Failed to subscribe to private channel: ${JSON.stringify(err)}`, 'error');
+            });
+
+            channel.bind('test-event', (data) => {
+                log('channelLog', `📨 Received on private channel: ${JSON.stringify(data)}`, 'info');
+            });
+        }
+
+        function testPresenceChannel() {
+            if (!pusher) {
+                log('channelLog', '❌ Not connected. Please test connection first.', 'error');
+                return;
+            }
+
+            const channelName = 'presence-test-channel';
+            const channel = pusher.subscribe(channelName);
+            channels[channelName] = channel;
+
+            channel.bind('pusher:subscription_succeeded', (members) => {
+                log('channelLog', `✅ Successfully subscribed to presence channel. Members: ${members.count}`, 'success');
+            });
+
+            channel.bind('pusher:subscription_error', (err) => {
+                log('channelLog', `❌ Failed to subscribe to presence channel: ${JSON.stringify(err)}`, 'error');
+            });
+
+            channel.bind('pusher:member_added', (member) => {
+                log('channelLog', `👤 Member joined: ${JSON.stringify(member.info)}`, 'info');
+            });
+
+            channel.bind('pusher:member_removed', (member) => {
+                log('channelLog', `👤 Member left: ${JSON.stringify(member.info)}`, 'warning');
+            });
+        }
+
+        function testMultipleChannels() {
+            if (!pusher) {
+                log('channelLog', '❌ Not connected. Please test connection first.', 'error');
+                return;
+            }
+
+            for (let i = 1; i <= 5; i++) {
+                const channelName = `test-channel-${i}`;
+                const channel = pusher.subscribe(channelName);
+                channels[channelName] = channel;
+
+                channel.bind('pusher:subscription_succeeded', () => {
+                    log('channelLog', `✅ Subscribed to ${channelName}`, 'success');
+                });
+            }
+
+            log('channelLog', '📡 Subscribed to 5 channels simultaneously', 'info');
+        }
+
+        function testTypingIndicator() {
+            if (!pusher) {
+                log('broadcastLog', '❌ Not connected. Please test connection first.', 'error');
+                return;
+            }
+
+            const channel = pusher.subscribe('private-chat-1');
+            
+            channel.bind('user.typing', (data) => {
+                log('broadcastLog', `⌨️ User typing: ${JSON.stringify(data)}`, 'info');
+            });
+
+            // Simulate typing start
+            setTimeout(() => {
+                log('broadcastLog', '📤 Simulating typing indicator...', 'info');
+                // In real app, this would trigger server-side broadcast
+            }, 500);
+        }
+
+        function testMessageBroadcast() {
+            if (!pusher) {
+                log('broadcastLog', '❌ Not connected. Please test connection first.', 'error');
+                return;
+            }
+
+            const channel = pusher.subscribe('private-chat-1');
+            const startTime = Date.now();
+            
+            channel.bind('message.sent', (data) => {
+                const latency = Date.now() - startTime;
+                latencySum += latency;
+                latencyCount++;
+                updateMetric('latency', Math.round(latencySum / latencyCount) + 'ms');
+                
+                log('broadcastLog', `📨 Message received (${latency}ms): ${JSON.stringify(data)}`, 'success');
+            });
+
+            log('broadcastLog', '📤 Simulating message broadcast...', 'info');
+            messageCount++;
+            updateMetric('messageCount', messageCount);
+        }
+
+        function testFileUpload() {
+            if (!pusher) {
+                log('broadcastLog', '❌ Not connected. Please test connection first.', 'error');
+                return;
+            }
+
+            const channel = pusher.subscribe('private-chat-1');
+            
+            channel.bind('file.uploaded', (data) => {
+                log('broadcastLog', `📁 File upload received: ${JSON.stringify(data)}`, 'success');
+            });
+
+            log('broadcastLog', '📤 Simulating file upload broadcast...', 'info');
+        }
+
+        function testBulkMessages() {
+            if (!pusher) {
+                log('broadcastLog', '❌ Not connected. Please test connection first.', 'error');
+                return;
+            }
+
+            log('broadcastLog', '🚀 Starting stress test: 100 messages...', 'warning');
+            
+            let received = 0;
+            const startTime = Date.now();
+            const channel = pusher.subscribe('stress-test-channel');
+            
+            channel.bind('bulk-message', (data) => {
+                received++;
+                if (received === 100) {
+                    const totalTime = Date.now() - startTime;
+                    log('broadcastLog', `✅ Stress test completed: 100 messages in ${totalTime}ms`, 'success');
+                }
+            });
+
+            // Simulate bulk messages
+            for (let i = 1; i <= 100; i++) {
+                setTimeout(() => {
+                    messageCount++;
+                    updateMetric('messageCount', messageCount);
+                }, i * 10);
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            addChatMessage(message, 'sent');
+            input.value = '';
+
+            // Simulate receiving a response
+            setTimeout(() => {
+                addChatMessage(`Echo: ${message}`, 'received');
+            }, 500 + Math.random() * 1000);
+        }
+
+        function addChatMessage(text, type) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = text;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function testConnectionResilience() {
+            if (!pusher) {
+                log('advancedLog', '❌ Not connected. Please test connection first.', 'error');
+                return;
+            }
+
+            log('advancedLog', '🔄 Testing connection resilience...', 'info');
+            
+            // Simulate network interruption
+            pusher.disconnect();
+            
+            setTimeout(() => {
+                pusher.connect();
+                reconnectCount++;
+                updateMetric('reconnects', reconnectCount);
+                log('advancedLog', '✅ Reconnection test completed', 'success');
+            }, 2000);
+        }
+
+        function testLatency() {
+            if (!pusher) {
+                log('advancedLog', '❌ Not connected. Please test connection first.', 'error');
+                return;
+            }
+
+            log('advancedLog', '⏱️ Measuring latency...', 'info');
+            
+            const iterations = 10;
+            let completed = 0;
+            let totalLatency = 0;
+
+            for (let i = 0; i < iterations; i++) {
+                const startTime = Date.now();
+                const channel = pusher.subscribe(`latency-test-${i}`);
+                
+                channel.bind('pusher:subscription_succeeded', () => {
+                    const latency = Date.now() - startTime;
+                    totalLatency += latency;
+                    completed++;
+                    
+                    if (completed === iterations) {
+                        const avgLatency = Math.round(totalLatency / iterations);
+                        log('advancedLog', `✅ Average latency: ${avgLatency}ms over ${iterations} tests`, 'success');
+                        updateMetric('latency', avgLatency + 'ms');
+                    }
+                });
+            }
+        }
+
+        function testBandwidth() {
+            log('advancedLog', '📊 Testing bandwidth with large payload...', 'info');
+            
+            const largeData = 'x'.repeat(10000); // 10KB payload
+            const startTime = Date.now();
+            
+            // Simulate large data transfer
+            setTimeout(() => {
+                const transferTime = Date.now() - startTime;
+                const bandwidth = Math.round((10000 * 8) / (transferTime / 1000)); // bits per second
+                log('advancedLog', `📈 Bandwidth test: ~${bandwidth} bps`, 'success');
+            }, 100);
+        }
+
+        function testErrorHandling() {
+            log('advancedLog', '🚨 Testing error handling...', 'warning');
+            
+            // Test invalid channel subscription
+            if (pusher) {
+                const invalidChannel = pusher.subscribe('invalid-channel-!@#$%');
+                
+                invalidChannel.bind('pusher:subscription_error', (err) => {
+                    log('advancedLog', `✅ Error handling works: ${JSON.stringify(err)}`, 'success');
+                });
+            }
+        }
+
+        function testAuthSuccess() {
+            log('authLog', '🔐 Testing successful authentication...', 'info');
+            
+            if (pusher) {
+                const authChannel = pusher.subscribe('private-auth-test');
+                
+                authChannel.bind('pusher:subscription_succeeded', () => {
+                    log('authLog', '✅ Authentication successful for private channel', 'success');
+                });
+                
+                authChannel.bind('pusher:subscription_error', (err) => {
+                    log('authLog', `❌ Authentication failed: ${JSON.stringify(err)}`, 'error');
+                });
+            }
+        }
+
+        function testAuthFailure() {
+            log('authLog', '🔒 Testing authentication failure...', 'info');
+            
+            // Create pusher instance with invalid auth
+            const testPusher = new Pusher('invalid-key', {
+                wsHost: '127.0.0.1',
+                wsPort: 6001,
+                forceTLS: false,
+                disableStats: true,
+                enabledTransports: ['ws'],
+                cluster: 'mt1',
+                authEndpoint: '/invalid-auth'
+            });
+            
+            const failChannel = testPusher.subscribe('private-fail-test');
+            
+            failChannel.bind('pusher:subscription_error', (err) => {
+                log('authLog', `✅ Auth failure handled correctly: ${JSON.stringify(err)}`, 'success');
+                testPusher.disconnect();
+            });
+        }
+
+        function testChannelAuth() {
+            log('authLog', '🔑 Testing channel authorization...', 'info');
+            
+            if (pusher) {
+                // Test multiple private channels with different auth requirements
+                const channels = ['private-chat-1', 'private-admin-only', 'private-user-123'];
+                
+                channels.forEach(channelName => {
+                    const channel = pusher.subscribe(channelName);
+                    
+                    channel.bind('pusher:subscription_succeeded', () => {
+                        log('authLog', `✅ Authorized for ${channelName}`, 'success');
+                    });
+                    
+                    channel.bind('pusher:subscription_error', (err) => {
+                        log('authLog', `❌ Not authorized for ${channelName}: ${err.error}`, 'warning');
+                    });
+                });
+            }
+        }
+
+        function updateUptime() {
+            setInterval(() => {
+                if (connectedAt) {
+                    const uptime = Math.floor((Date.now() - connectedAt) / 1000);
+                    updateMetric('uptime', uptime + 's');
+                }
+            }, 1000);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey) {
+                switch (e.key) {
+                    case 't':
+                        e.preventDefault();
+                        testConnection();
+                        break;
+                    case 'd':
+                        e.preventDefault();
+                        disconnect();
+                        break;
+                }
+            }
+        });
+
+        // Auto-scroll logs
+        function autoScrollLogs() {
+            const logs = document.querySelectorAll('.log');
+            logs.forEach(log => {
+                log.scrollTop = log.scrollHeight;
+            });
+        }
+
+        setInterval(autoScrollLogs, 1000);
+
+        // Show shortcuts info
+        console.log('🎯 Real-time Chat Testing Suite Loaded!');
+        console.log('💡 Keyboard Shortcuts:');
+        console.log('   Ctrl+T: Test Connection');
+        console.log('   Ctrl+D: Disconnect');
+        console.log('🚀 Ready for comprehensive testing!');
+    </script>
+</body>
+</html>

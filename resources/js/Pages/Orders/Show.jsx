@@ -159,12 +159,53 @@ export default function OrderShow({ auth, order }) {
                                     <p className="text-gray-700 mb-4">
                                         {t('payment_prompt')}
                                     </p>
-                                    <Button
-                                        href={`/orders/${order.id}/pay`}
-                                        variant="primary"
-                                    >
-                                        {t('pay_now')} - ${order.total_cost}
-                                    </Button>
+                                    
+                                    {/* Shopify Checkout Button */}
+                                    {order.checkout_url && order.payment_status === 'pending' ? (
+                                        <div className="space-y-3">
+                                            <Button
+                                                href={order.checkout_url}
+                                                variant="primary"
+                                                target="_blank"
+                                                className="inline-flex items-center"
+                                            >
+                                                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1z" clipRule="evenodd" />
+                                                </svg>
+                                                {t('pay_with_shopify')} - ${order.total_cost}
+                                            </Button>
+                                            <p className="text-sm text-gray-600">
+                                                {t('secure_payment_shopify')}
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        /* Fallback to balance payment */
+                                        <Button
+                                            href={`/orders/${order.id}/pay`}
+                                            variant="primary"
+                                        >
+                                            {t('pay_now')} - ${order.total_cost}
+                                        </Button>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Payment Status */}
+                            {order.payment_status && order.payment_status !== 'pending' && (
+                                <div className={`mb-8 p-4 rounded-lg ${
+                                    order.payment_status === 'paid' ? 'bg-green-50' : 
+                                    order.payment_status === 'failed' ? 'bg-red-50' : 
+                                    'bg-gray-50'
+                                }`}>
+                                    <h3 className="text-lg font-semibold mb-2">{t('payment_status')}</h3>
+                                    <p className="text-gray-700">
+                                        {t(`payment_status_${order.payment_status}`)}
+                                    </p>
+                                    {order.paid_at && (
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            {t('paid_at')}: {new Date(order.paid_at).toLocaleString()}
+                                        </p>
+                                    )}
                                 </div>
                             )}
 

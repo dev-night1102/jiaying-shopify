@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Chat;
 use App\Models\Message;
 use App\Models\Order;
+use App\Events\MessageSent;
+use App\Events\UserTyping;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
@@ -176,6 +178,9 @@ class ChatController extends Controller
                 'image_path' => $filePath,
                 'is_read' => false,
             ]);
+
+            // Broadcast the message
+            broadcast(new MessageSent($message, $user))->toOthers();
         } else {
             return back()->withErrors(['message' => 'Message content or file required']);
         }
@@ -195,7 +200,11 @@ class ChatController extends Controller
             abort(403);
         }
 
-        // For now, just return success - in production you'd use Laravel Echo/Pusher
+        $isTyping = $request->input('is_typing', true);
+
+        // Broadcast typing indicator
+        broadcast(new UserTyping($chat, $user, $isTyping))->toOthers();
+
         return response()->json(['status' => 'typing']);
     }
 }

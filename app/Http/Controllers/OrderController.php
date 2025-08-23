@@ -5,12 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderImage;
 use App\Models\Chat;
+use App\Services\ShopifyService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
+    protected $shopifyService;
+
+    public function __construct(ShopifyService $shopifyService)
+    {
+        $this->shopifyService = $shopifyService;
+    }
     public function index(Request $request)
     {
         $user = $request->user();
@@ -117,12 +125,17 @@ class OrderController extends Controller
             'service_fee' => 'required|numeric|min:0',
             'shipping_estimate' => 'required|numeric|min:0',
             'notes' => 'nullable|string|max:500',
+            'items' => 'nullable|array',
+            'items.*.name' => 'required_with:items|string',
+            'items.*.price' => 'required_with:items|numeric',
+            'items.*.quantity' => 'required_with:items|numeric',
         ]);
 
         if (!$order->canBeQuoted()) {
             return back()->with('error', 'This order cannot be quoted.');
         }
 
+        // Update basic order information
         $order->update([
             'item_cost' => $request->item_cost,
             'service_fee' => $request->service_fee,
@@ -134,7 +147,44 @@ class OrderController extends Controller
         $order->calculateTotalCost();
         $order->save();
 
-        return back()->with('success', 'Quote sent successfully!');
+        // Create Shopify checkout for this quote
+        $items = $request->items ?? [
+            [
+                'name' => 'Product from ' . $order->product_link,
+                'price' => $request->item_cost,
+                'quantity' => 1,
+                'url' => $order->product_link
+            ]
+        ];
+
+        $shopifyResult = $this->shopifyService->createDraftOrderForQuote(
+            $order, 
+            $items, 
+            $request->service_fee
+        );
+
+        if ($shopifyResult['success']) {
+            $order->update([
+                'shopify_draft_order_id' => $shopifyResult['draft_order_id'],
+                'checkout_url' => $shopifyResult['checkout_url'],
+                'payment_status' => 'pending',
+                'checkout_created_at' => now(),
+            ]);
+
+            Log::info('Shopify checkout created for order', [
+                'order_id' => $order->id,
+                'draft_order_id' => $shopifyResult['draft_order_id']
+            ]);
+
+            return back()->with('success', 'Quote sent with Shopify payment link!');
+        } else {
+            Log::error('Failed to create Shopify checkout', [
+                'order_id' => $order->id,
+                'error' => $shopifyResult['error']
+            ]);
+
+            return back()->with('warning', 'Quote sent, but payment integration failed. Manual payment required.');
+        }
     }
 
     public function accept(Request $request, Order $order)
@@ -170,9 +220,14 @@ class OrderController extends Controller
             return back()->with('error', 'This order cannot be paid.');
         }
 
-        // Check user balance
+        // If Shopify checkout exists, redirect to checkout URL
+        if ($order->checkout_url && $order->payment_status === 'pending') {
+            return redirect($order->checkout_url);
+        }
+
+        // Fallback to balance payment for legacy orders
         if ($user->balance < $order->total_cost) {
-            return back()->with('error', 'Insufficient balance. Please top up your account.');
+            return back()->with('error', 'Insufficient balance. Please top up your account or use Shopify checkout.');
         }
 
         // Deduct from user balance
@@ -180,6 +235,7 @@ class OrderController extends Controller
 
         $order->update([
             'status' => 'paid',
+            'payment_status' => 'paid',
             'paid_at' => now(),
         ]);
 
