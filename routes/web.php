@@ -198,3 +198,110 @@ Route::prefix('webhooks/shopify')->group(function () {
 Route::get('/shopify-test', function () {
     return view('shopify-test');
 })->name('shopify.test');
+
+// Production demo orders page (bypasses auth/database for Render.com)
+Route::get('/orders', function () {
+    // Check if this is production (Render.com) or database is unavailable
+    $isProduction = request()->getHost() === 'jiaying-shopify.onrender.com';
+    $dbAvailable = true;
+    
+    try {
+        \DB::connection()->getPdo();
+    } catch (\Exception $e) {
+        $dbAvailable = false;
+    }
+    
+    // Use mock data if production OR database unavailable
+    if ($isProduction || !$dbAvailable) {
+        // Create mock user for demo
+        $mockUser = (object) [
+            'id' => 1,
+            'name' => 'Demo Admin',
+            'email' => 'admin@demo.com',
+            'role' => 'admin',
+            'balance' => 1000.00,
+        ];
+        
+        // Create mock orders with Shopify integration examples
+        $mockOrders = collect([
+            (object) [
+                'id' => 1,
+                'order_number' => 'ORD-2024-001',
+                'user_id' => 1,
+                'user' => $mockUser,
+                'product_link' => 'https://nike.com/air-jordan-1',
+                'status' => 'quoted',
+                'payment_status' => 'pending',
+                'item_cost' => 150.00,
+                'service_fee' => 15.00,
+                'shipping_estimate' => 25.00,
+                'total_cost' => 190.00,
+                'checkout_url' => 'https://checkout.shopify.com/demo123',
+                'shopify_order_id' => null,
+                'notes' => '🔥 Shopify Integration Demo - Size 10, Red/Black',
+                'created_at' => now()->subDays(2)->toISOString(),
+                'updated_at' => now()->subDays(1)->toISOString(),
+                'images' => [],
+                'chats' => collect([]),
+                'chat_id' => null,
+            ],
+            (object) [
+                'id' => 2,
+                'order_number' => 'ORD-2024-002',
+                'user_id' => 1,
+                'user' => $mockUser,
+                'product_link' => 'https://supreme.com/box-logo-tee',
+                'status' => 'paid',
+                'payment_status' => 'paid',
+                'item_cost' => 85.00,
+                'service_fee' => 8.50,
+                'shipping_estimate' => 15.00,
+                'total_cost' => 108.50,
+                'checkout_url' => null,
+                'shopify_order_id' => 'gid://shopify/Order/5479145676893',
+                'notes' => '✅ Paid via Shopify - Size Large, White',
+                'created_at' => now()->subDays(5)->toISOString(),
+                'updated_at' => now()->subDays(3)->toISOString(),
+                'paid_at' => now()->subDays(3)->toISOString(),
+                'images' => [],
+                'chats' => collect([]),
+                'chat_id' => null,
+            ],
+            (object) [
+                'id' => 3,
+                'order_number' => 'ORD-2024-003',
+                'user_id' => 1,
+                'user' => $mockUser,
+                'product_link' => 'https://adidas.com/yeezy-boost-350',
+                'status' => 'requested',
+                'payment_status' => 'pending',
+                'item_cost' => null,
+                'service_fee' => null,
+                'shipping_estimate' => null,
+                'total_cost' => null,
+                'checkout_url' => null,
+                'shopify_order_id' => null,
+                'notes' => '🔍 New Request - Looking for size 9.5',
+                'created_at' => now()->subHours(2)->toISOString(),
+                'updated_at' => now()->subHours(2)->toISOString(),
+                'images' => [],
+                'chats' => collect([]),
+                'chat_id' => null,
+            ],
+        ]);
+        
+        // Create paginated response
+        $orders = new \Illuminate\Pagination\LengthAwarePaginator(
+            $mockOrders, $mockOrders->count(), 20, 1, ['path' => request()->url()]
+        );
+        
+        return Inertia::render('Orders/Index', [
+            'orders' => $orders,
+            'isAdmin' => true,
+            'auth' => ['user' => $mockUser],
+        ]);
+    }
+    
+    // Normal flow for local development with database
+    return redirect()->route('login');
+})->name('orders.index');
