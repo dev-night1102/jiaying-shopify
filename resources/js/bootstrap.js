@@ -24,19 +24,39 @@ window.Pusher = Pusher;
 // Detect if we're in production (Render.com)
 const isProduction = window.location.hostname.includes('onrender.com');
 
-window.Echo = new Echo({
-    broadcaster: 'pusher',
-    key: import.meta.env.VITE_PUSHER_APP_KEY || 'shopping-agent-key',
-    wsHost: isProduction ? window.location.hostname : (import.meta.env.VITE_PUSHER_HOST || '127.0.0.1'),
-    wsPort: isProduction ? 443 : (import.meta.env.VITE_PUSHER_PORT || 6001),
-    forceTLS: isProduction,
-    wssPort: isProduction ? 443 : 6001,
-    disableStats: true,
-    enabledTransports: isProduction ? ['ws', 'wss'] : ['ws'],
-    cluster: 'mt1',
-    auth: {
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+// Only initialize Echo if not in production (since Soketi is not deployed on Render)
+if (!isProduction) {
+    window.Echo = new Echo({
+        broadcaster: 'pusher',
+        key: import.meta.env.VITE_PUSHER_APP_KEY || 'shopping-agent-key',
+        wsHost: import.meta.env.VITE_PUSHER_HOST || '127.0.0.1',
+        wsPort: import.meta.env.VITE_PUSHER_PORT || 6001,
+        forceTLS: false,
+        disableStats: true,
+        enabledTransports: ['ws'],
+        cluster: 'mt1',
+        auth: {
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            },
         },
-    },
-});
+    });
+} else {
+    // Create a mock Echo object for production to prevent errors
+    window.Echo = {
+        channel: () => ({
+            listen: () => ({ listen: () => ({}) }),
+            whisper: () => ({}),
+            stopListening: () => ({})
+        }),
+        private: () => ({
+            listen: () => ({ listen: () => ({}) }),
+            whisper: () => ({}),
+            stopListening: () => ({})
+        }),
+        leave: () => ({}),
+        leaveChannel: () => ({}),
+        disconnect: () => ({})
+    };
+    console.info('WebSocket disabled in production - Soketi server not deployed');
+}

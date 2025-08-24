@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 
 class MockAuthentication
@@ -16,31 +17,59 @@ class MockAuthentication
     {
         // Check if database is available
         try {
-            \DB::connection()->getPdo();
+            DB::connection()->getPdo();
             // Database is available, proceed normally
             return $next($request);
         } catch (\Exception $e) {
             // Database not available, use mock user
-            if (!$request->user()) {
-                // Create a mock user object
-                $mockUser = new User();
-                $mockUser->id = 1;
-                $mockUser->name = 'Demo User';
-                $mockUser->email = 'demo@example.com';
-                $mockUser->role = $request->is('admin/*') ? 'admin' : 'user';
-                $mockUser->balance = 1000.00;
-                $mockUser->created_at = now();
-                $mockUser->updated_at = now();
-                
-                // Set the mock user as authenticated
-                $request->setUserResolver(function () use ($mockUser) {
-                    return $mockUser;
-                });
-                
-                auth()->setUser($mockUser);
-            }
+            $this->setupMockUser($request);
         }
         
         return $next($request);
+    }
+    
+    private function setupMockUser(Request $request)
+    {
+        // Create a mock user object that doesn't require database
+        $mockUser = new class extends User {
+            public $id = 1;
+            public $name = 'Demo Admin';
+            public $email = 'admin@demo.com';
+            public $role = 'admin';
+            public $balance = 1000.00;
+            public $exists = true;
+            
+            public function __construct() {
+                $this->created_at = now();
+                $this->updated_at = now();
+                // Don't call parent constructor to avoid database connection
+            }
+            
+            // Override methods that might touch the database
+            public function save(array $options = []) { return true; }
+            public function delete() { return true; }
+            public function fresh($with = []) { return $this; }
+            public function refresh() { return $this; }
+            public function replicate(array $except = null) { return $this; }
+            
+            // Mock relationships
+            public function memberships() { return new \Illuminate\Database\Eloquent\Collection([]); }
+            public function activeMembership() { return null; }
+            public function orders() { return new \Illuminate\Database\Eloquent\Collection([]); }
+            public function chats() { return new \Illuminate\Database\Eloquent\Collection([]); }
+            
+            // Ensure isAdmin works
+            public function isAdmin(): bool {
+                return $this->role === 'admin';
+            }
+        };
+        
+        // Set the mock user as authenticated
+        $request->setUserResolver(function () use ($mockUser) {
+            return $mockUser;
+        });
+        
+        // Set in auth without database operations
+        auth()->setUser($mockUser);
     }
 }
