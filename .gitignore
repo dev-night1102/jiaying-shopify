@@ -32,6 +32,7 @@ yarn-error.log
 /email-service/node_modules
 /email-service/.env
 /email-service/*.log
+/SHOPIFY-WORKFLOW-GUIDE.md
 
 # Database
 *.sqlite

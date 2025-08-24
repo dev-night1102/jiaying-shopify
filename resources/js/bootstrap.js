@@ -21,14 +21,18 @@ import Pusher from 'pusher-js';
 window.Pusher = Pusher;
 
 // Configure Echo with Soketi (self-hosted Pusher replacement)
+// Detect if we're in production (Render.com)
+const isProduction = window.location.hostname.includes('onrender.com');
+
 window.Echo = new Echo({
     broadcaster: 'pusher',
     key: import.meta.env.VITE_PUSHER_APP_KEY || 'shopping-agent-key',
-    wsHost: import.meta.env.VITE_PUSHER_HOST || '127.0.0.1',
-    wsPort: import.meta.env.VITE_PUSHER_PORT || 6001,
-    forceTLS: false,
+    wsHost: isProduction ? window.location.hostname : (import.meta.env.VITE_PUSHER_HOST || '127.0.0.1'),
+    wsPort: isProduction ? 443 : (import.meta.env.VITE_PUSHER_PORT || 6001),
+    forceTLS: isProduction,
+    wssPort: isProduction ? 443 : 6001,
     disableStats: true,
-    enabledTransports: ['ws'],
+    enabledTransports: isProduction ? ['ws', 'wss'] : ['ws'],
     cluster: 'mt1',
     auth: {
         headers: {
