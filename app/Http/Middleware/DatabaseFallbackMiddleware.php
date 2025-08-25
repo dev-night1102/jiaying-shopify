@@ -15,21 +15,33 @@ class DatabaseFallbackMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Test database connection
+        // Test database connection first
+        $databaseAvailable = true;
         try {
             DB::connection()->getPdo();
-            // Database is available, proceed normally
+        } catch (\Exception $e) {
+            $databaseAvailable = false;
+            Log::warning('Database unavailable, attempting fallback', ['error' => $e->getMessage()]);
+        }
+        
+        // If database is unavailable and this needs fallback, handle it immediately
+        if (!$databaseAvailable && $this->shouldHandleWithFallback($request)) {
+            return $this->handleFallbackRequest($request);
+        }
+        
+        // Database is available, proceed normally but catch any other errors
+        try {
             return $next($request);
         } catch (\Exception $e) {
-            // Database is not available, check if this is a request that needs fallback
-            Log::warning('Database unavailable, attempting fallback', ['error' => $e->getMessage()]);
+            // Catch any other errors (like auth failures due to database issues)
+            Log::warning('Request failed, attempting fallback', ['error' => $e->getMessage()]);
             
             if ($this->shouldHandleWithFallback($request)) {
                 return $this->handleFallbackRequest($request);
             }
             
-            // For other requests, let them fail normally
-            return $next($request);
+            // Re-throw the exception if we can't handle it
+            throw $e;
         }
     }
     
@@ -92,6 +104,7 @@ class DatabaseFallbackMiddleware
         }
         
         if ($path === 'admin/users') {
+            Log::info('DatabaseFallbackMiddleware: Handling admin users fallback');
             return $this->handleUsersListFallback();
         }
         
@@ -209,28 +222,30 @@ class DatabaseFallbackMiddleware
     
     private function handleUsersListFallback()
     {
+        Log::info('DatabaseFallbackMiddleware: Creating mock users data for admin/users page');
+        
         $mockUsers = collect([
-            (object) [
+            [
                 'id' => 1,
                 'name' => 'Demo User',
                 'email' => 'demo@example.com',
                 'role' => 'user',
                 'balance' => 1000.00,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at' => now()->toISOString(),
+                'updated_at' => now()->toISOString(),
                 'orders_count' => 2,
                 'total_spent' => 250.00,
                 'memberships' => [],
                 'activeMembership' => null,
             ],
-            (object) [
+            [
                 'id' => 2,
                 'name' => 'Demo Admin',
                 'email' => 'admin@example.com',
                 'role' => 'admin',
                 'balance' => 5000.00,
-                'created_at' => now()->subDays(10),
-                'updated_at' => now()->subDays(1),
+                'created_at' => now()->subDays(10)->toISOString(),
+                'updated_at' => now()->subDays(1)->toISOString(),
                 'orders_count' => 0,
                 'total_spent' => 0.00,
                 'memberships' => [],
@@ -238,9 +253,20 @@ class DatabaseFallbackMiddleware
             ]
         ]);
         
+        // Create Laravel pagination structure that matches what Inertia expects
         $paginatedUsers = new \Illuminate\Pagination\LengthAwarePaginator(
-            $mockUsers, $mockUsers->count(), 20, 1, ['path' => request()->url()]
+            $mockUsers->toArray(), // Convert to plain array for JSON serialization
+            $mockUsers->count(), 
+            20, 
+            1, 
+            [
+                'path' => request()->url(),
+                'pageName' => 'page',
+            ]
         );
+        
+        // Add query string support
+        $paginatedUsers->withPath(request()->url());
         
         // Match the real controller's filter structure
         $filters = [
@@ -249,10 +275,19 @@ class DatabaseFallbackMiddleware
             'sort' => 'latest'
         ];
         
-        return inertia('Admin/Users/Index', [
+        $responseData = [
             'users' => $paginatedUsers,
             'filters' => $filters,
+        ];
+        
+        Log::info('DatabaseFallbackMiddleware: Returning users data structure', [
+            'users_type' => gettype($paginatedUsers),
+            'users_data_exists' => isset($paginatedUsers->data),
+            'users_count' => $paginatedUsers->count(),
+            'filters' => $filters
         ]);
+        
+        return inertia('Admin/Users/Index', $responseData);
     }
     
     private function handleOrderCreateFallback()
