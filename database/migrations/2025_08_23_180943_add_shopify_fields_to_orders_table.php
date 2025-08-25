@@ -23,9 +23,8 @@ return new class extends Migration
             
             // Payment tracking fields
             $table->string('payment_status')->default('pending')->index(); // pending, paid, failed, cancelled, refunded
-            $table->decimal('service_fee', 10, 2)->nullable();
+            // Skip service_fee and paid_at - they already exist in the original orders table
             $table->decimal('refunded_amount', 10, 2)->nullable();
-            $table->timestamp('paid_at')->nullable();
             $table->timestamp('refunded_at')->nullable();
             $table->string('cancel_reason')->nullable();
             $table->timestamp('cancelled_at')->nullable();
@@ -49,9 +48,8 @@ return new class extends Migration
                 'checkout_created_at',
                 'checkout_completed_at',
                 'payment_status',
-                'service_fee',
+                // Skip service_fee - it's part of the original table
                 'refunded_amount',
-                'paid_at',
                 'refunded_at',
                 'cancel_reason',
                 'cancelled_at',
