@@ -39,7 +39,11 @@ class OrderController extends Controller
                 return $order;
             });
 
-            return Inertia::render('Orders/Index', [
+            // Determine which view to render based on whether this is admin context
+            $isAdminRoute = request()->is('admin/*');
+            $viewName = $isAdminRoute ? 'Admin/Orders/Index' : 'Orders/Index';
+            
+            return Inertia::render($viewName, [
                 'orders' => $orders,
                 'isAdmin' => $user->isAdmin(),
             ]);
@@ -58,7 +62,11 @@ class OrderController extends Controller
                 ]
             );
             
-            return Inertia::render('Orders/Index', [
+            // Use the same view logic for error handling
+            $isAdminRoute = request()->is('admin/*');
+            $viewName = $isAdminRoute ? 'Admin/Orders/Index' : 'Orders/Index';
+            
+            return Inertia::render($viewName, [
                 'orders' => $emptyOrders,
                 'isAdmin' => $user->isAdmin(),
             ]);

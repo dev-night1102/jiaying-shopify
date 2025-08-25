@@ -21,11 +21,12 @@ import Pusher from 'pusher-js';
 window.Pusher = Pusher;
 
 // Configure Echo with Soketi (self-hosted Pusher replacement)
-// Detect if we're in production (Render.com)
+// Detect if we're in production (Render.com) or if WebSocket should be disabled
 const isProduction = window.location.hostname.includes('onrender.com');
+const disableWebSocket = true; // Disable WebSocket for now since Soketi server is not running
 
-// Only initialize Echo if not in production (since Soketi is not deployed on Render)
-if (!isProduction) {
+// Only initialize Echo if WebSocket is enabled and not in production
+if (!isProduction && !disableWebSocket) {
     window.Echo = new Echo({
         broadcaster: 'pusher',
         key: import.meta.env.VITE_PUSHER_APP_KEY || 'shopping-agent-key',

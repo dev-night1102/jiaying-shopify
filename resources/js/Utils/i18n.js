@@ -9,6 +9,10 @@ const translations = {
 let loadedTranslations = {};
 
 export async function loadTranslations(locale) {
+    if (!locale || !translations[locale]) {
+        // Default to English if locale is undefined or not supported
+        locale = 'en';
+    }
     if (!loadedTranslations[locale]) {
         const module = await translations[locale]();
         loadedTranslations[locale] = module.default || module;
@@ -17,7 +21,7 @@ export async function loadTranslations(locale) {
 }
 
 export function useTranslation() {
-    const { locale } = usePage().props;
+    const { locale = 'en' } = usePage().props;
     const [translations, setTranslations] = useState({});
 
     useEffect(() => {

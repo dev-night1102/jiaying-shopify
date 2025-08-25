@@ -30,7 +30,11 @@ class ChatController extends Controller
             ->orderBy('last_message_at', 'desc')
             ->get();
 
-        return Inertia::render('Chat/Index', [
+        // Determine which view to render based on whether this is admin context
+        $isAdminRoute = request()->is('admin/*');
+        $viewName = $isAdminRoute ? 'Admin/Chats/Index' : 'Chats/Index';
+        
+        return Inertia::render($viewName, [
             'chats' => $chats,
             'isAdmin' => $user->isAdmin(),
         ]);
@@ -54,7 +58,11 @@ class ChatController extends Controller
         // Mark messages as read
         $chat->markAsRead($user->id);
 
-        return Inertia::render('Chat/Show', [
+        // Determine which view to render based on whether this is admin context
+        $isAdminRoute = request()->is('admin/*');
+        $viewName = $isAdminRoute ? 'Admin/Chats/Show' : 'Chats/Show';
+        
+        return Inertia::render($viewName, [
             'chat' => $chat->load(['user', 'order']),
             'messages' => $messages,
             'isAdmin' => $user->isAdmin(),

@@ -59,12 +59,19 @@ class DatabaseFallbackMiddleware
             'admin/orders',
             'admin/users',
             'login',
+            'chats',
+            'chats/create',
+            'notifications/mark-as-read',
+            'notifications/clear-badge',
         ];
         
-        // Also handle POST requests to orders and login
+        // Also handle POST requests to orders, login, logout and notifications
         $fallbackPostRoutes = [
             'orders',
             'login',
+            'logout',
+            'notifications/mark-as-read',
+            'notifications/clear-badge',
         ];
         
         return in_array($path, $fallbackRoutes) || 
@@ -93,8 +100,12 @@ class DatabaseFallbackMiddleware
             return $mockUser;
         });
         
-        if ($path === 'orders' || $path === 'admin/orders') {
-            return $this->handleOrdersListFallback(str_contains($path, 'admin'));
+        if ($path === 'orders') {
+            return $this->handleOrdersListFallback(false); // Regular user orders
+        }
+        
+        if ($path === 'admin/orders') {
+            return $this->handleOrdersListFallback(true); // Admin orders
         }
         
         if (preg_match('#^orders/(\d+)$#', $path, $matches) || preg_match('#^admin/orders/(\d+)$#', $path, $matches)) {
@@ -121,12 +132,26 @@ class DatabaseFallbackMiddleware
             return $this->handleLoginPageFallback();
         }
         
+        if ($path === 'chats' || $path === 'chats/create') {
+            Log::info('DatabaseFallbackMiddleware: Handling chats fallback');
+            return $this->handleChatsFallback($request);
+        }
+        
         if ($request->isMethod('POST') && $path === 'orders') {
             return $this->handleOrderStoreFallback();
         }
         
         if ($request->isMethod('POST') && $path === 'login') {
             return $this->handleLoginFallback($request);
+        }
+        
+        if ($request->isMethod('POST') && $path === 'logout') {
+            return $this->handleLogoutFallback($request);
+        }
+        
+        if ($request->isMethod('POST') && in_array($path, ['notifications/mark-as-read', 'notifications/clear-badge'])) {
+            Log::info('DatabaseFallbackMiddleware: Handling notification fallback');
+            return $this->handleNotificationFallback($request, $path);
         }
         
         // Default fallback
@@ -303,6 +328,98 @@ class DatabaseFallbackMiddleware
         return inertia('Admin/Users/Index', $responseData);
     }
     
+    private function handleNotificationFallback($request, $path)
+    {
+        Log::info("DatabaseFallbackMiddleware: Handling {$path} notification fallback");
+        
+        // For notification endpoints, just return success response
+        // These are typically AJAX calls that expect simple success responses
+        if ($path === 'notifications/mark-as-read') {
+            return response()->json(['message' => 'Notifications marked as read'], 200);
+        }
+        
+        if ($path === 'notifications/clear-badge') {
+            return response()->json(['message' => 'Badge cleared'], 200);
+        }
+        
+        return response()->json(['message' => 'Success'], 200);
+    }
+    
+    private function handleChatsFallback($request)
+    {
+        Log::info('DatabaseFallbackMiddleware: Creating mock chats data');
+        
+        // Create mock admin user for authentication context
+        $mockUser = (object) [
+            'id' => 1,
+            'name' => 'Demo Admin',
+            'email' => 'admin@shopify.com',
+            'role' => 'admin',
+            'balance' => 1000.00,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
+        
+        // Mock chats data
+        $mockChats = collect([
+            (object) [
+                'id' => 1,
+                'user_id' => 2,
+                'order_id' => 1,
+                'status' => 'active',
+                'created_at' => now()->subHours(2),
+                'updated_at' => now()->subMinutes(5),
+                'user' => (object) [
+                    'id' => 2,
+                    'name' => 'Demo User',
+                    'email' => 'user@example.com',
+                ],
+                'order' => (object) [
+                    'id' => 1,
+                    'order_number' => 'DEMO-001',
+                    'product_link' => 'https://example.com/product',
+                    'status' => 'quoted',
+                ],
+                'messages' => collect([
+                    (object) [
+                        'id' => 1,
+                        'content' => 'Hello, I need help with my order.',
+                        'sender_id' => 2,
+                        'created_at' => now()->subHours(2),
+                    ],
+                    (object) [
+                        'id' => 2, 
+                        'content' => 'Hi! I can help you with that. What do you need?',
+                        'sender_id' => 1,
+                        'created_at' => now()->subHours(1),
+                    ],
+                ]),
+                'last_message' => (object) [
+                    'content' => 'Hi! I can help you with that. What do you need?',
+                    'created_at' => now()->subHours(1),
+                ],
+            ],
+        ]);
+        
+        // Create paginated response
+        $paginatedChats = new \Illuminate\Pagination\LengthAwarePaginator(
+            $mockChats->toArray(),
+            $mockChats->count(),
+            20,
+            1,
+            [
+                'path' => $request->url(),
+                'pageName' => 'page',
+            ]
+        );
+        
+        return inertia('Chats/Index', [
+            'chats' => $mockChats->toArray(), // Convert collection to array for JavaScript
+            'auth' => ['user' => $mockUser],
+            'isAdmin' => $mockUser->role === 'admin',
+        ]);
+    }
+    
     private function handleLoginFallback($request)
     {
         Log::info('DatabaseFallbackMiddleware: Handling login fallback');
@@ -311,22 +428,45 @@ class DatabaseFallbackMiddleware
         $email = $request->input('email');
         $password = $request->input('password');
         
-        // Mock admin user
-        if ($email === 'admin@shopify.com' && $password === 'password') {
-            // Create mock admin user session data
-            $mockUser = [
-                'id' => 1,
-                'name' => 'Demo Admin',
-                'email' => 'admin@shopify.com',
-                'role' => 'admin',
-                'balance' => 1000.00,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
+        // Define mock users
+        $mockUsers = [
+            'admin@shopify.com' => [
+                'id' => 1, 'name' => 'Demo Admin', 'email' => 'admin@shopify.com', 
+                'role' => 'admin', 'balance' => 1000.00
+            ],
+            'john@example.com' => [
+                'id' => 2, 'name' => 'John Smith', 'email' => 'john@example.com', 
+                'role' => 'user', 'balance' => 150.00
+            ],
+            'sarah@example.com' => [
+                'id' => 3, 'name' => 'Sarah Johnson', 'email' => 'sarah@example.com', 
+                'role' => 'user', 'balance' => 200.00
+            ],
+            'mike@example.com' => [
+                'id' => 4, 'name' => 'Mike Chen', 'email' => 'mike@example.com', 
+                'role' => 'user', 'balance' => 75.00
+            ],
+            'user@shopify.com' => [
+                'id' => 5, 'name' => 'Test User', 'email' => 'user@shopify.com', 
+                'role' => 'user', 'balance' => 50.00
+            ],
+        ];
+        
+        // Check if credentials match any mock user
+        if (isset($mockUsers[$email]) && $password === 'password') {
+            $userData = $mockUsers[$email];
             
-            // Manually log in the user (bypass database)
-            session(['user_id' => 1, 'user' => $mockUser]);
-            session(['auth' => ['user' => $mockUser]]);
+            // Create a temporary User model instance
+            $mockUser = new \App\Models\User();
+            $mockUser->id = $userData['id'];
+            $mockUser->name = $userData['name'];
+            $mockUser->email = $userData['email'];
+            $mockUser->role = $userData['role'];
+            $mockUser->balance = $userData['balance'];
+            $mockUser->exists = true; // Important: tells Laravel this user exists
+            
+            // Use Laravel's auth system to log in the mock user
+            auth()->login($mockUser);
             
             // Redirect to dashboard
             return redirect('/dashboard');
@@ -339,7 +479,23 @@ class DatabaseFallbackMiddleware
     private function handleLoginPageFallback()
     {
         Log::info('DatabaseFallbackMiddleware: Rendering login page fallback');
-        return inertia('Auth/Login');
+        return inertia('Auth/Login', [
+            'flash' => [
+                'success' => null,
+                'error' => null
+            ]
+        ]);
+    }
+    
+    private function handleLogoutFallback($request)
+    {
+        Log::info('DatabaseFallbackMiddleware: Handling logout fallback');
+        
+        // Clear any existing session/auth
+        auth()->logout();
+        
+        // Redirect to home page
+        return redirect('/')->with('success', 'Logged out successfully');
     }
     
     private function handleOrderCreateFallback()

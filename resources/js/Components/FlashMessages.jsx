@@ -3,22 +3,22 @@ import { usePage } from '@inertiajs/react';
 import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 
 export default function FlashMessages() {
-    const { flash } = usePage().props;
+    const { flash = {} } = usePage().props;
     const [messages, setMessages] = useState([]);
 
     useEffect(() => {
         const newMessages = [];
         
-        if (flash.success) {
+        if (flash?.success) {
             newMessages.push({ type: 'success', message: flash.success, id: Date.now() + 1 });
         }
-        if (flash.error) {
+        if (flash?.error) {
             newMessages.push({ type: 'error', message: flash.error, id: Date.now() + 2 });
         }
-        if (flash.warning) {
+        if (flash?.warning) {
             newMessages.push({ type: 'warning', message: flash.warning, id: Date.now() + 3 });
         }
-        if (flash.info) {
+        if (flash?.info) {
             newMessages.push({ type: 'info', message: flash.info, id: Date.now() + 4 });
         }
         
