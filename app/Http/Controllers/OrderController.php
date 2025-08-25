@@ -22,202 +22,37 @@ class OrderController extends Controller
     }
     public function index(Request $request)
     {
-        // Create mock user if not authenticated (production fallback)
         $user = $request->user();
-        if (!$user) {
-            $user = $this->createMockUser();
-        }
         
-        // Check if database is available first
-        if (!$this->isDatabaseAvailable()) {
-            Log::info('Database unavailable, returning mock orders');
-            $orders = $this->getMockOrders($user);
-            return Inertia::render('Orders/Index', [
-                'orders' => $orders,
-                'isAdmin' => is_object($user) && method_exists($user, 'isAdmin') ? $user->isAdmin() : true,
-            ]);
+        $query = Order::with(['user', 'images', 'logistics', 'chats']);
+
+        if (!$user->isAdmin()) {
+            $query->where('user_id', $user->id);
         }
-        
-        try {
-            $query = Order::with(['user', 'images', 'logistics', 'chats']);
 
-            if (!$user->isAdmin()) {
-                $query->where('user_id', $user->id);
-            }
+        $orders = $query->latest()->paginate(20);
 
-            $orders = $query->latest()->paginate(20);
-
-            // Add chat_id to each order for easy access
-            $orders->transform(function ($order) {
-                $order->chat_id = $order->chats->first()?->id;
-                return $order;
-            });
-        } catch (\Exception $e) {
-            // If any database error occurs, return mock data
-            Log::warning('Database query failed, using mock data', ['error' => $e->getMessage()]);
-            $orders = $this->getMockOrders($user);
-        }
+        // Add chat_id to each order for easy access
+        $orders->transform(function ($order) {
+            $order->chat_id = $order->chats->first()?->id;
+            return $order;
+        });
 
         return Inertia::render('Orders/Index', [
             'orders' => $orders,
-            'isAdmin' => is_object($user) && method_exists($user, 'isAdmin') ? $user->isAdmin() : true,
+            'isAdmin' => $user->isAdmin(),
         ]);
-    }
-    
-    /**
-     * Check if database is available
-     */
-    private function isDatabaseAvailable()
-    {
-        try {
-            DB::connection()->getPdo();
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-    
-    /**
-     * Create a mock user for production demo
-     */
-    private function createMockUser()
-    {
-        return (object) [
-            'id' => 1,
-            'name' => 'Demo Admin',
-            'email' => 'admin@demo.com',
-            'role' => 'admin',
-            'balance' => 1000.00,
-            'isAdmin' => function() { return true; }
-        ];
-    }
-    
-    /**
-     * Get mock orders for demonstration when database is not available
-     */
-    private function getMockOrders($user)
-    {
-        // Safe property access for user object
-        $userId = is_object($user) && isset($user->id) ? $user->id : 1;
-        $userName = is_object($user) && isset($user->name) ? $user->name : 'Demo Admin';
-        $userEmail = is_object($user) && isset($user->email) ? $user->email : 'admin@demo.com';
-        
-        $mockOrders = collect([
-            [
-                'id' => 1,
-                'order_number' => 'ORD-2024-001',
-                'user_id' => $userId,
-                'user' => [
-                    'id' => $userId,
-                    'name' => $userName,
-                    'email' => $userEmail,
-                ],
-                'product_link' => 'https://example.com/product-1',
-                'status' => 'quoted',
-                'payment_status' => 'pending',
-                'item_cost' => 100.00,
-                'service_fee' => 10.00,
-                'shipping_estimate' => 15.00,
-                'total_cost' => 125.00,
-                'checkout_url' => 'https://checkout.shopify.com/example',
-                'shopify_order_id' => null,
-                'notes' => 'Size: L, Color: Blue',
-                'created_at' => now()->subDays(2),
-                'updated_at' => now()->subDays(1),
-                'quoted_at' => now()->subDays(1),
-                'images' => [],
-                'logistics' => null,
-                'chats' => collect([]),
-                'chat_id' => null,
-            ],
-            [
-                'id' => 2,
-                'order_number' => 'ORD-2024-002',
-                'user_id' => $userId,
-                'user' => [
-                    'id' => $userId,
-                    'name' => $userName,
-                    'email' => $userEmail,
-                ],
-                'product_link' => 'https://example.com/product-2',
-                'status' => 'paid',
-                'payment_status' => 'paid',
-                'item_cost' => 200.00,
-                'service_fee' => 20.00,
-                'shipping_estimate' => 20.00,
-                'total_cost' => 240.00,
-                'checkout_url' => null,
-                'shopify_order_id' => 'SHOP-123456',
-                'notes' => 'Urgent delivery requested',
-                'created_at' => now()->subDays(5),
-                'updated_at' => now()->subDays(3),
-                'quoted_at' => now()->subDays(4),
-                'paid_at' => now()->subDays(3),
-                'images' => [],
-                'logistics' => null,
-                'chats' => collect([]),
-                'chat_id' => null,
-            ],
-            [
-                'id' => 3,
-                'order_number' => 'ORD-2024-003',
-                'user_id' => $userId,
-                'user' => [
-                    'id' => $userId,
-                    'name' => $userName,
-                    'email' => $userEmail,
-                ],
-                'product_link' => 'https://example.com/product-3',
-                'status' => 'requested',
-                'payment_status' => 'pending',
-                'item_cost' => null,
-                'service_fee' => null,
-                'shipping_estimate' => null,
-                'total_cost' => null,
-                'checkout_url' => null,
-                'shopify_order_id' => null,
-                'notes' => 'Looking for best price',
-                'created_at' => now()->subHours(2),
-                'updated_at' => now()->subHours(2),
-                'images' => [],
-                'logistics' => null,
-                'chats' => collect([]),
-                'chat_id' => null,
-            ],
-        ])->map(function ($order) {
-            return (object) $order;
-        });
-        
-        // Create a paginated response structure
-        return new \Illuminate\Pagination\LengthAwarePaginator(
-            $mockOrders,
-            $mockOrders->count(),
-            20,
-            1,
-            ['path' => request()->url()]
-        );
     }
 
     public function show(Request $request, $orderId)
     {
         $user = $request->user();
-
-        try {
-            $order = Order::with(['user', 'images', 'logistics', 'chats.messages.sender'])->findOrFail($orderId);
-            
-            // Check permissions
-            if (!$user->isAdmin() && $order->user_id !== $user->id) {
-                abort(403);
-            }
-        } catch (\Exception $e) {
-            // If database is not available, return mock order
-            Log::warning('Database not available, using mock order data', ['error' => $e->getMessage()]);
-            
-            $order = $this->getMockOrder($orderId, $user);
-            
-            if (!$order) {
-                abort(404);
-            }
+        
+        $order = Order::with(['user', 'images', 'logistics', 'chats.messages.sender'])->findOrFail($orderId);
+        
+        // Check permissions
+        if (!$user->isAdmin() && $order->user_id !== $user->id) {
+            abort(403);
         }
 
         return Inertia::render('Orders/Show', [
@@ -225,49 +60,6 @@ class OrderController extends Controller
             'isAdmin' => $user->isAdmin(),
         ]);
     }
-    
-    /**
-     * Get a mock order for demonstration
-     */
-    private function getMockOrder($orderId, $user)
-    {
-        $mockOrders = [
-            1 => (object) [
-                'id' => 1,
-                'order_number' => 'ORD-2024-001',
-                'user_id' => $user->id,
-                'user' => (object) [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                ],
-                'product_link' => 'https://example.com/product-1',
-                'status' => 'quoted',
-                'payment_status' => 'pending',
-                'item_cost' => 100.00,
-                'service_fee' => 10.00,
-                'shipping_estimate' => 15.00,
-                'total_cost' => 125.00,
-                'checkout_url' => 'https://checkout.shopify.com/example',
-                'shopify_order_id' => null,
-                'shopify_order_name' => null,
-                'notes' => 'Size: L, Color: Blue',
-                'specifications' => 'Blue color, Large size',
-                'quantity' => 1,
-                'quoted_price' => 100.00,
-                'created_at' => now()->subDays(2)->toISOString(),
-                'updated_at' => now()->subDays(1)->toISOString(),
-                'quoted_at' => now()->subDays(1)->toISOString(),
-                'paid_at' => null,
-                'images' => [],
-                'logistics' => null,
-                'chats' => [],
-            ],
-        ];
-        
-        return $mockOrders[$orderId] ?? null;
-    }
-
     public function create(Request $request)
     {
         $user = $request->user();
@@ -278,7 +70,7 @@ class OrderController extends Controller
         }
 
         return Inertia::render('Orders/Create', [
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -396,10 +188,12 @@ class OrderController extends Controller
         }
     }
 
-    public function accept(Request $request, Order $order)
+    public function accept(Request $request, $orderId)
     {
         $user = $request->user();
-
+        
+        $order = Order::findOrFail($orderId);
+        
         // Check permissions
         if (!$user->isAdmin() && $order->user_id !== $user->id) {
             abort(403);

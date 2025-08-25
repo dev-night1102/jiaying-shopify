@@ -41,9 +41,9 @@ class DashboardController extends Controller
                         ->sum('total_cost') ?? 0;
                 }
             } catch (\Exception $e) {
-                // Use sample data if there are database issues
-                $totalRevenue = 125750.50;
-                $monthlyRevenue = 23400.75;
+                // Use zero values if there are database issues
+                $totalRevenue = 0;
+                $monthlyRevenue = 0;
             }
             
             // Growth calculations
@@ -81,8 +81,8 @@ class DashboardController extends Controller
                             ->sum('total_cost') ?? 0;
                     }
                 } catch (\Exception $e) {
-                    // Use sample data
-                    $monthRevenue = rand(15000, 25000);
+                    // Use zero if there are database issues
+                    $monthRevenue = 0;
                 }
                 
                 $monthlyRevenueData[] = [
