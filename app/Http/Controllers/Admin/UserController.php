@@ -12,46 +12,68 @@ class UserController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = User::withCount('orders');
-        
-        // Search filter
-        if ($request->search) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', "%{$request->search}%")
-                    ->orWhere('email', 'like', "%{$request->search}%");
-            });
-        }
-        
-        // Role filter
-        if ($request->role) {
-            $query->where('role', $request->role);
-        }
-        
-        // Sorting
-        switch ($request->sort) {
-            case 'oldest':
-                $query->oldest();
-                break;
-            case 'name':
-                $query->orderBy('name');
-                break;
-            case 'orders':
-                $query->orderBy('orders_count', 'desc');
-                break;
-            case 'balance':
-                $query->orderBy('balance', 'desc');
-                break;
-            default: // latest
-                $query->latest();
-                break;
-        }
-        
-        $users = $query->paginate(20)->withQueryString();
+        try {
+            $query = User::withCount('orders');
+            
+            // Search filter
+            if ($request->search) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('name', 'like', "%{$request->search}%")
+                        ->orWhere('email', 'like', "%{$request->search}%");
+                });
+            }
+            
+            // Role filter
+            if ($request->role) {
+                $query->where('role', $request->role);
+            }
+            
+            // Sorting
+            switch ($request->sort) {
+                case 'oldest':
+                    $query->oldest();
+                    break;
+                case 'name':
+                    $query->orderBy('name');
+                    break;
+                case 'orders':
+                    $query->orderBy('orders_count', 'desc');
+                    break;
+                case 'balance':
+                    $query->orderBy('balance', 'desc');
+                    break;
+                default: // latest
+                    $query->latest();
+                    break;
+            }
+            
+            $users = $query->paginate(20)->withQueryString();
 
-        return Inertia::render('Admin/Users/Index', [
-            'users' => $users,
-            'filters' => $request->only(['search', 'role', 'sort']),
-        ]);
+            return Inertia::render('Admin/Users/Index', [
+                'users' => $users,
+                'filters' => $request->only(['search', 'role', 'sort']),
+            ]);
+        } catch (\Exception $e) {
+            // Log the error and return empty paginated result to prevent JS errors
+            \Log::error('UserController index error: ' . $e->getMessage());
+            
+            // Return empty pagination structure to prevent frontend crashes
+            $emptyUsers = new \Illuminate\Pagination\LengthAwarePaginator(
+                [], // empty data array
+                0,  // total count
+                20, // per page
+                1,  // current page
+                [
+                    'path' => $request->url(),
+                    'pageName' => 'page',
+                ]
+            );
+            
+            return Inertia::render('Admin/Users/Index', [
+                'users' => $emptyUsers,
+                'filters' => $request->only(['search', 'role', 'sort']),
+            ]);
+        }
     }
 
     public function show(User $user): Response

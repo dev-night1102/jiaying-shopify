@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -13,8 +12,10 @@ class DatabaseFallbackMiddleware
     /**
      * Handle an incoming request.
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
+        Log::info('DatabaseFallbackMiddleware: Middleware running for path: ' . $request->path());
+        
         // Test database connection first
         $databaseAvailable = true;
         try {
@@ -70,7 +71,7 @@ class DatabaseFallbackMiddleware
                ($request->isMethod('POST') && in_array($path, $fallbackPostRoutes));
     }
     
-    private function handleFallbackRequest(Request $request): Response
+    private function handleFallbackRequest(Request $request)
     {
         $path = $request->path();
         
@@ -109,6 +110,7 @@ class DatabaseFallbackMiddleware
         }
         
         if ($path === 'orders/create') {
+            Log::info('DatabaseFallbackMiddleware: Handling orders/create fallback');
             return $this->handleOrderCreateFallback();
         }
         
