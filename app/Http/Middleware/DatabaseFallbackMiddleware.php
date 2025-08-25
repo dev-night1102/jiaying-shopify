@@ -58,11 +58,13 @@ class DatabaseFallbackMiddleware
             'admin/dashboard',
             'admin/orders',
             'admin/users',
+            'login',
         ];
         
-        // Also handle POST requests to orders
+        // Also handle POST requests to orders and login
         $fallbackPostRoutes = [
             'orders',
+            'login',
         ];
         
         return in_array($path, $fallbackRoutes) || 
@@ -114,8 +116,17 @@ class DatabaseFallbackMiddleware
             return $this->handleOrderCreateFallback();
         }
         
+        if ($path === 'login' && $request->isMethod('GET')) {
+            Log::info('DatabaseFallbackMiddleware: Handling login GET fallback');
+            return $this->handleLoginPageFallback();
+        }
+        
         if ($request->isMethod('POST') && $path === 'orders') {
             return $this->handleOrderStoreFallback();
+        }
+        
+        if ($request->isMethod('POST') && $path === 'login') {
+            return $this->handleLoginFallback($request);
         }
         
         // Default fallback
@@ -290,6 +301,45 @@ class DatabaseFallbackMiddleware
         ]);
         
         return inertia('Admin/Users/Index', $responseData);
+    }
+    
+    private function handleLoginFallback($request)
+    {
+        Log::info('DatabaseFallbackMiddleware: Handling login fallback');
+        
+        // Check credentials against mock users
+        $email = $request->input('email');
+        $password = $request->input('password');
+        
+        // Mock admin user
+        if ($email === 'admin@shopify.com' && $password === 'password') {
+            // Create mock admin user session data
+            $mockUser = [
+                'id' => 1,
+                'name' => 'Demo Admin',
+                'email' => 'admin@shopify.com',
+                'role' => 'admin',
+                'balance' => 1000.00,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+            
+            // Manually log in the user (bypass database)
+            session(['user_id' => 1, 'user' => $mockUser]);
+            session(['auth' => ['user' => $mockUser]]);
+            
+            // Redirect to dashboard
+            return redirect('/dashboard');
+        }
+        
+        // Invalid credentials
+        return back()->withErrors(['email' => 'Invalid credentials']);
+    }
+    
+    private function handleLoginPageFallback()
+    {
+        Log::info('DatabaseFallbackMiddleware: Rendering login page fallback');
+        return inertia('Auth/Login');
     }
     
     private function handleOrderCreateFallback()

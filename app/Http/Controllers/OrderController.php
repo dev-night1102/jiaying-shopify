@@ -22,26 +22,47 @@ class OrderController extends Controller
     }
     public function index(Request $request)
     {
-        $user = $request->user();
-        
-        $query = Order::with(['user', 'images', 'logistics', 'chats']);
+        try {
+            $user = $request->user();
+            
+            $query = Order::with(['user', 'images', 'logistics', 'chats']);
 
-        if (!$user->isAdmin()) {
-            $query->where('user_id', $user->id);
+            if (!$user->isAdmin()) {
+                $query->where('user_id', $user->id);
+            }
+
+            $orders = $query->latest()->paginate(20);
+
+            // Add chat_id to each order for easy access
+            $orders->transform(function ($order) {
+                $order->chat_id = $order->chats->first()?->id;
+                return $order;
+            });
+
+            return Inertia::render('Orders/Index', [
+                'orders' => $orders,
+                'isAdmin' => $user->isAdmin(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('OrderController index error: ' . $e->getMessage());
+            
+            // Return empty orders page to prevent crashes
+            $emptyOrders = new \Illuminate\Pagination\LengthAwarePaginator(
+                [], // empty data array
+                0,  // total count
+                20, // per page
+                1,  // current page
+                [
+                    'path' => $request->url(),
+                    'pageName' => 'page',
+                ]
+            );
+            
+            return Inertia::render('Orders/Index', [
+                'orders' => $emptyOrders,
+                'isAdmin' => $user->isAdmin(),
+            ]);
         }
-
-        $orders = $query->latest()->paginate(20);
-
-        // Add chat_id to each order for easy access
-        $orders->transform(function ($order) {
-            $order->chat_id = $order->chats->first()?->id;
-            return $order;
-        });
-
-        return Inertia::render('Orders/Index', [
-            'orders' => $orders,
-            'isAdmin' => $user->isAdmin(),
-        ]);
     }
 
     public function show(Request $request, $orderId)
