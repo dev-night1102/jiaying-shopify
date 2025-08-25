@@ -62,16 +62,27 @@ class OrderController extends Controller
     }
     public function create(Request $request)
     {
-        $user = $request->user();
-        
-        // Only non-admin users can create orders
-        if ($user->isAdmin()) {
-            return redirect()->route('dashboard')->with('error', 'Admins cannot create orders');
-        }
+        try {
+            $user = $request->user();
+            
+            if (!$user) {
+                return redirect()->route('login')->with('error', 'Please log in to create an order');
+            }
+            
+            // Only non-admin users can create orders
+            if ($user->isAdmin()) {
+                return redirect()->route('dashboard')->with('error', 'Admins cannot create orders');
+            }
 
-        return Inertia::render('Orders/Create', [
-            'user' => $user,
-        ]);
+            return Inertia::render('Orders/Create', [
+                'user' => $user,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Order create page error: ' . $e->getMessage());
+            
+            // Return error page or redirect
+            return back()->with('error', 'Unable to load order creation page. Please try again.');
+        }
     }
 
     public function store(Request $request)
