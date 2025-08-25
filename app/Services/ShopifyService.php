@@ -18,19 +18,47 @@ class ShopifyService
 
     public function __construct()
     {
-        // Initialize Shopify Context
-        Context::initialize(
-            apiKey: config('shopify.api_key'),
-            apiSecretKey: config('shopify.api_secret'),
-            scopes: ['read_products', 'write_products', 'read_orders', 'write_orders', 'write_draft_orders', 'read_checkouts', 'write_checkouts'],
-            hostName: config('app.url'),
-            sessionStorage: new FileSessionStorage('/tmp/shopify_sessions'),
-            apiVersion: ApiVersion::LATEST,
-            isPrivateApp: true,
-        );
+        // Get Shopify config values
+        $apiKey = config('shopify.api_key');
+        $apiSecret = config('shopify.api_secret');
+        
+        // Only initialize if we have API credentials
+        if (empty($apiKey) || empty($apiSecret)) {
+            Log::warning('Shopify API credentials not configured - ShopifyService will use fallback mode');
+            return; // Skip initialization if credentials are missing
+        }
+        
+        try {
+            // Initialize Shopify Context
+            Context::initialize(
+                apiKey: $apiKey,
+                apiSecretKey: $apiSecret,
+                scopes: ['read_products', 'write_products', 'read_orders', 'write_orders', 'write_draft_orders', 'read_checkouts', 'write_checkouts'],
+                hostName: config('app.url'),
+                sessionStorage: new FileSessionStorage('/tmp/shopify_sessions'),
+                apiVersion: ApiVersion::LATEST,
+                isPrivateApp: true,
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to initialize Shopify service: ' . $e->getMessage());
+            // Continue without Shopify - methods will handle this gracefully
+        }
 
         $this->storeUrl = config('shopify.store_domain');
-        $this->client = new Rest($this->storeUrl, config('shopify.access_token'));
+        
+        // Only create client if we have access token
+        $accessToken = config('shopify.access_token');
+        if (!empty($accessToken) && !empty($this->storeUrl)) {
+            try {
+                $this->client = new Rest($this->storeUrl, $accessToken);
+            } catch (Exception $e) {
+                Log::error('Failed to initialize Shopify REST client: ' . $e->getMessage());
+                $this->client = null;
+            }
+        } else {
+            Log::warning('Shopify store domain or access token not configured');
+            $this->client = null;
+        }
     }
 
     /**
@@ -38,6 +66,14 @@ class ShopifyService
      */
     public function createDraftOrderForQuote(Order $order, array $items, float $serviceFee)
     {
+        // Check if Shopify is properly configured
+        if (!$this->client) {
+            return [
+                'success' => false,
+                'error' => 'Shopify API not configured - using fallback mode'
+            ];
+        }
+        
         try {
             // Build line items for the draft order
             $lineItems = [];
