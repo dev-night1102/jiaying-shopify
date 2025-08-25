@@ -40,15 +40,23 @@ echo "Permissions set."
 php artisan config:clear
 php artisan config:cache
 
-# Run migrations
-echo "Running migrations..."
-php artisan migrate --force
+# Try to run migrations (non-blocking)
+echo "Attempting to run migrations..."
+if php artisan migrate --force 2>/dev/null; then
+    echo "Migrations completed successfully."
+    
+    # Only seed if migrations succeeded
+    echo "Attempting to seed database..."
+    if php artisan db:seed --force 2>/dev/null; then
+        echo "Database seeding completed successfully."
+    else
+        echo "Warning: Database seeding failed, but continuing startup..."
+    fi
+else
+    echo "Warning: Migrations failed, but continuing startup with fallback middleware..."
+fi
 
-# Seed the database
-echo "Seeding database..."
-php artisan db:seed --force
-
-echo "Database setup complete."
+echo "Database setup attempt complete - app will use fallback middleware if needed."
 
 # Add health check route
 echo "Adding health check..."
