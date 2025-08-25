@@ -139,7 +139,11 @@ class OrderController extends Controller
                 $path = $image->store('order-images', 'public');
                 OrderImage::create([
                     'order_id' => $order->id,
-                    'image_path' => $path,
+                    'type' => 'product',
+                    'path' => $path,
+                    'filename' => $image->getClientOriginalName(),
+                    'mime_type' => $image->getMimeType(),
+                    'size' => $image->getSize(),
                 ]);
             }
         }
